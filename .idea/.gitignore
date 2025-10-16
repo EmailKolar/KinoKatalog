@@ -1,0 +1,48 @@
+# === Java / Spring Boot ===
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# === Maven Wrapper ===
+.mvn/
+!/.mvn/wrapper/maven-wrapper.jar
+mvnw
+mvnw.cmd
+
+# === IDEs ===
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.settings/
+.classpath
+
+# === OS files ===
+.DS_Store
+Thumbs.db
+
+# === Logs ===
+*.log
+logs/
+spring.log
+
+# === Environment files ===
+.env
+application-*.properties
+
+# === Docker volumes ===
+db_data/
+**/db_data/
+**/data/
+**/mysql/
+
+# === Node frontend (if you add later) ===
+node_modules/
+dist/
+build/
+.env.local
+.env.production
