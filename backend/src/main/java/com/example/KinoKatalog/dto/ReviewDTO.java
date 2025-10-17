@@ -1,4 +1,4 @@
-
+package com.example.KinoKatalog.dto;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

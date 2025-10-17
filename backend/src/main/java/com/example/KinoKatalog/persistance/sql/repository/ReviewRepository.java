@@ -1,4 +1,4 @@
-package com.example.KinoKatalog.repository;
+package com.example.KinoKatalog.persistance.sql.repository;
 
 import com.example.KinoKatalog.model.Review;
 import org.springframework.data.jpa.repository.JpaRepository;
