@@ -1,7 +1,8 @@
 package com.example.KinoKatalog.service;
 
-import com.example.KinoKatalog.model.Review;
-import com.example.KinoKatalog.repository.ReviewRepository;
+
+import com.example.KinoKatalog.persistance.sql.entity.Review;
+import com.example.KinoKatalog.persistance.sql.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
