@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Movie {
+public class MovieEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
