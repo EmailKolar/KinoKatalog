@@ -1,29 +1,25 @@
-package com.example.KinoKatalog.model;
+package com.example.KinoKatalog.dto;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-@Entity
-@Table(name="movies")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Movie {
-    @Id
+public class MovieDTO {
     private Integer id;
-
+    private Integer tmdbId;
     private String title;
     private String overview;
     private LocalDate releaseDate;
     private Integer runtime;
     private BigDecimal averageRating;
-
-
+    private Integer reviewCount;
+    private String posterUrl;
+    private LocalDateTime createdAt;
 }

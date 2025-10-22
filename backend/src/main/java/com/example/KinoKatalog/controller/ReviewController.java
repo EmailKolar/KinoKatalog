@@ -1,7 +1,8 @@
 package com.example.KinoKatalog.controller;
 
-import com.example.KinoKatalog.model.Review;
-import com.example.KinoKatalog.service.ReviewService;
+
+import com.example.KinoKatalog.persistance.sql.entity.ReviewEntity;
+import com.example.KinoKatalog.service.impl.ReviewServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,16 +14,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReviewController {
 
-    private final ReviewService reviewService;
+    private final ReviewServiceImpl reviewServiceImpl;
 
     @GetMapping("/movie/{movieId}")
-    public List<Review> getReviewsByMovie(@PathVariable Integer movieId) {
-        return reviewService.getReviewsByMovie(movieId);
+    public List<ReviewEntity> getReviewsByMovie(@PathVariable Integer movieId) {
+        return reviewServiceImpl.getReviewsByMovie(movieId);
     }
 
     @PostMapping
-    public ResponseEntity<Review> createReview(@RequestBody Review review) {
-        Review saved = reviewService.addReview(review);
+    public ResponseEntity<ReviewEntity> createReview(@RequestBody ReviewEntity reviewEntity) {
+        ReviewEntity saved = reviewServiceImpl.addReview(reviewEntity);
         return ResponseEntity.ok(saved);
     }
 }

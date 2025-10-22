@@ -126,13 +126,15 @@ CREATE TABLE movie_cast (
 );
 
 CREATE TABLE movie_crew (
-  movie_id INT,
-  person_id INT,
-  job VARCHAR(100),
-  PRIMARY KEY (movie_id, person_id, job),
-  FOREIGN KEY (movie_id) REFERENCES movies(id),
-  FOREIGN KEY (person_id) REFERENCES people(id)
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    movie_id INT NOT NULL,
+    person_id INT NOT NULL,
+    job VARCHAR(100) NOT NULL,
+    department VARCHAR(100),
+    FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE,
+    FOREIGN KEY (person_id) REFERENCES people(id) ON DELETE CASCADE
 );
+
 
 CREATE TABLE collection_movies (
   collection_id INT,

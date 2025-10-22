@@ -1,24 +1,12 @@
 package com.example.KinoKatalog.service;
 
-import com.example.KinoKatalog.model.Review;
-import com.example.KinoKatalog.repository.ReviewRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import com.example.KinoKatalog.persistance.sql.entity.ReviewEntity;
 
 import java.util.List;
 
+public interface ReviewService {
 
-@Service
-@RequiredArgsConstructor
-public class ReviewService {
-    private final ReviewRepository reviewRepository;
 
-    public List<Review> getReviewsByMovie(Integer movieId) {
-        return reviewRepository.findByMovieId(movieId);
-    }
-
-    public Review addReview(Review review) {
-        return reviewRepository.save(review);
-    }
+    List<ReviewEntity> getReviewsByMovie(Integer movieId);
+    ReviewEntity addReview(ReviewEntity reviewEntity);
 }
-
