@@ -16,7 +16,7 @@ public class ReviewServiceSqlImpl implements ReviewService {
     private final ReviewSqlRepository reviewSqlRepository;
 
     public List<ReviewEntity> getReviewsByMovie(Integer movieId) {
-        return reviewSqlRepository.findByMovieId(movieId);
+        return reviewSqlRepository.findByMovieEntity_Id(movieId);
     }
 
     public ReviewEntity addReview(ReviewEntity reviewEntity) {
