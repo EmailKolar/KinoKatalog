@@ -26,4 +26,5 @@ public class ReviewController {
         ReviewEntity saved = reviewServiceImpl.addReview(reviewEntity);
         return ResponseEntity.ok(saved);
     }
+
 }
