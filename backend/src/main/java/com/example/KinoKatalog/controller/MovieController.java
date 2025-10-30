@@ -36,9 +36,9 @@ public class MovieController {
     //TODO input validation
     @PostMapping
     public ResponseEntity<MovieDTO> createMovie(@Valid @RequestBody MovieDTO movieDTO) {
-        movieDTO.setTitle((movieDTO.getTitle()));
-        movieDTO.setOverview(movieDTO.getOverview());
-        movieDTO.setPosterUrl((movieDTO.getPosterUrl()));
+        movieDTO.setTitle(StringEscapeUtils.escapeHtml4(movieDTO.getTitle()));
+        movieDTO.setOverview(StringEscapeUtils.escapeHtml4(movieDTO.getOverview()));
+        movieDTO.setPosterUrl(StringEscapeUtils.escapeHtml4(movieDTO.getPosterUrl()));
 
         MovieDTO created = movieService.createMovie(movieDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
