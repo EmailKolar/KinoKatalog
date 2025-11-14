@@ -1,6 +1,7 @@
-version: "3.9"
 
 services:
+
+  # MySQL Database Service
   db:
     image: mysql:8.0
     container_name: KinoKatalog-db
@@ -21,11 +22,38 @@ services:
       retries: 5
       timeout: 5s
 
+  # MongoDB Service
+  mongodb:
+    image: mongo:8.0
+    container_name: KinoKatalog-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpass
+      MONGO_INITDB_DATABASE: KinoKatalogDocument
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: |
+        mongosh --eval "
+        db = db.getSiblingDB('admin');
+        db.auth('root', 'rootpass');
+        db.adminCommand('ping')
+        " --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  # Backend Service
   backend:
     build: ./backend
     container_name: KinoKatalog-backend
     depends_on:
       db:
+        condition: service_healthy
+      mongodb:
         condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/KinoKatalog
@@ -36,6 +64,22 @@ services:
     ports:
       - "8080:8080"
 
+  # MongoDB GUI using mongo-express
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - "8082:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: rootpass
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+  # MySQL GUI using phpMyAdmin
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     restart: always
@@ -43,6 +87,11 @@ services:
       - "8081:80"
     environment:
       PMA_HOST: db
+    depends_on:
+      db:
+        condition: service_healthy
 
+# Volumes data persistence
 volumes:
   db_data:
+  mongo_data:
