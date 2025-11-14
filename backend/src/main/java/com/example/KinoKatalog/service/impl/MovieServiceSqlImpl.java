@@ -2,8 +2,8 @@ package com.example.KinoKatalog.service.impl;
 
 import com.example.KinoKatalog.dto.MovieDTO;
 import com.example.KinoKatalog.mapper.MovieMapper;
-import com.example.KinoKatalog.persistance.sql.entity.MovieEntity;
-import com.example.KinoKatalog.persistance.sql.repository.MovieSqlRepository;
+import com.example.KinoKatalog.persistence.sql.entity.MovieEntity;
+import com.example.KinoKatalog.persistence.sql.repository.MovieSqlRepository;
 import com.example.KinoKatalog.service.MovieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;

@@ -1,6 +1,6 @@
 package com.example.KinoKatalog.service;
 
-import com.example.KinoKatalog.persistance.sql.entity.ReviewEntity;
+import com.example.KinoKatalog.persistence.sql.entity.ReviewEntity;
 
 import java.util.List;
 

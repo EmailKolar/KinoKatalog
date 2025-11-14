@@ -1,4 +1,4 @@
-package com.example.KinoKatalog.persistance.sql.entity;
+package com.example.KinoKatalog.persistence.sql.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;

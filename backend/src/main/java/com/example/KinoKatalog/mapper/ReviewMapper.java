@@ -2,7 +2,7 @@ package com.example.KinoKatalog.mapper;
 
 
 import com.example.KinoKatalog.dto.ReviewDTO;
-import com.example.KinoKatalog.persistance.sql.entity.ReviewEntity;
+import com.example.KinoKatalog.persistence.sql.entity.ReviewEntity;
 
 public class ReviewMapper {
 
