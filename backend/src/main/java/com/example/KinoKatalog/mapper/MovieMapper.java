@@ -1,7 +1,7 @@
 package com.example.KinoKatalog.mapper;
 
 import com.example.KinoKatalog.dto.MovieDTO;
-import com.example.KinoKatalog.persistance.sql.entity.MovieEntity;
+import com.example.KinoKatalog.persistence.sql.entity.MovieEntity;
 
 public class MovieMapper {
 

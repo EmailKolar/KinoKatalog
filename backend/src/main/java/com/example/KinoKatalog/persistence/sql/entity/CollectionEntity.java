@@ -1,4 +1,4 @@
-package com.example.KinoKatalog.persistance.sql.entity;
+package com.example.KinoKatalog.persistence.sql.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -7,7 +7,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,27 +15,30 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(
-        name = "collection_movies",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"collection_id", "movie_id"})
-)
+@Table(name = "collections")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CollectionMovieEntity {
+public class CollectionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "collection_id", nullable = false)
-    private Integer collectionId;
+    @Column(nullable = false)
+    private Integer userId;
 
-    @Column(name = "movie_id", nullable = false)
-    private Integer movieId;
+    @Column(nullable = false)
+    private String name;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(length = 4000)
+    private String description;
+
+    //@Column(nullable = false)
+    //private String username; //NOTE i do not think should have this field in entity
+
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
     @PrePersist

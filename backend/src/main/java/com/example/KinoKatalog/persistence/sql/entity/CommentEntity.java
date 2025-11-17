@@ -1,4 +1,4 @@
-package com.example.KinoKatalog.persistance.sql.entity;
+package com.example.KinoKatalog.persistence.sql.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
@@ -9,30 +9,29 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "reviews")
+@Table(name = "comments")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReviewEntity {
+public class CommentEntity {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "movie_id", nullable = false)
+    @JoinColumn(name = "review_id", nullable = false)
     @JsonBackReference // prevents infinite recursion during serialization
-    private MovieEntity movieEntity;
+    private ReviewEntity reviewEntity;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
     private UserEntity userEntity;
 
-    private Integer rating;
-
-    @Column(length = 5000)
-    private String reviewText;
+    @Column(length = 2000)
+    private String commentText;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
