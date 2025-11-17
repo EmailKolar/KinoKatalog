@@ -35,8 +35,8 @@ public class CollectionEntity {
     @Column(length = 4000)
     private String description;
 
-    @Column(nullable = false)
-    private String username;
+    //@Column(nullable = false)
+    //private String username; //NOTE i do not think should have this field in entity
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
