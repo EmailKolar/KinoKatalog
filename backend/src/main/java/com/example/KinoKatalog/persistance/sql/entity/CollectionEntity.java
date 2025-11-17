@@ -27,13 +27,16 @@ public class CollectionEntity {
     private Integer id;
 
     @Column(nullable = false)
+    private Integer userId;
+
+    @Column(nullable = false)
     private String name;
 
     @Column(length = 4000)
     private String description;
 
     @Column(nullable = false)
-    private String username; // owner stored as username (no relationship)
+    private String username;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
