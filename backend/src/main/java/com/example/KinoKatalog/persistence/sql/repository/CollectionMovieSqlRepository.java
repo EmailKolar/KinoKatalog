@@ -1,6 +1,6 @@
-package com.example.KinoKatalog.persistance.sql.repository;
+package com.example.KinoKatalog.persistence.sql.repository;
 
-import com.example.KinoKatalog.persistance.sql.entity.CollectionMovieEntity;
+import com.example.KinoKatalog.persistence.sql.entity.CollectionMovieEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
