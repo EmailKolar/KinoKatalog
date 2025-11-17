@@ -135,13 +135,14 @@ CREATE TABLE movie_crew (
     FOREIGN KEY (person_id) REFERENCES people(id) ON DELETE CASCADE
 );
 
-
 CREATE TABLE collection_movies (
-  collection_id INT,
-  movie_id INT,
-  PRIMARY KEY (collection_id, movie_id),
-  FOREIGN KEY (collection_id) REFERENCES collections(id),
-  FOREIGN KEY (movie_id) REFERENCES movies(id)
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  collection_id INT NOT NULL,
+  movie_id INT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY ux_collection_movie (collection_id, movie_id),
+  FOREIGN KEY (collection_id) REFERENCES collections(id) ON DELETE CASCADE,
+  FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE
 );
 
 CREATE TABLE movie_tags (

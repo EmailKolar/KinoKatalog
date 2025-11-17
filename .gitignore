@@ -33,6 +33,7 @@ spring.log
 # === Environment files ===
 .env
 application-*.properties
+application.properties
 
 # === Docker volumes ===
 db_data/
