@@ -1,7 +1,7 @@
 package com.example.KinoKatalog.mapper;
 
 import com.example.KinoKatalog.dto.CollectionDTO;
-import com.example.KinoKatalog.persistance.sql.entity.CollectionEntity;
+import com.example.KinoKatalog.persistence.sql.entity.CollectionEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

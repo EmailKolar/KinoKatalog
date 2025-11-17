@@ -5,6 +5,7 @@ import com.example.KinoKatalog.dto.CollectionDTO;
 import com.example.KinoKatalog.service.CollectionService;
 import com.example.KinoKatalog.service.MovieService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public class CollectionController {
 
     private final CollectionService collectionService;
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public CollectionDTO create(@RequestBody CollectionDTO dto) {
         return collectionService.createCollection(dto);

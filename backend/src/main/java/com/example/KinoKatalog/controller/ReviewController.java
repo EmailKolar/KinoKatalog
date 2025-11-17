@@ -1,7 +1,7 @@
 package com.example.KinoKatalog.controller;
 
 
-import com.example.KinoKatalog.persistance.sql.entity.ReviewEntity;
+import com.example.KinoKatalog.persistence.sql.entity.ReviewEntity;
 import com.example.KinoKatalog.service.impl.ReviewServiceSqlImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

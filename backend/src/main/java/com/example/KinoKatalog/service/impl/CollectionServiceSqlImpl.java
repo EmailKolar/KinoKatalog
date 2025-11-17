@@ -2,16 +2,16 @@ package com.example.KinoKatalog.service.impl;
 
 import com.example.KinoKatalog.dto.CollectionDTO;
 import com.example.KinoKatalog.mapper.CollectionMapper;
-import com.example.KinoKatalog.persistance.sql.entity.CollectionEntity;
-import com.example.KinoKatalog.persistance.sql.entity.CollectionMovieEntity;
-import com.example.KinoKatalog.persistance.sql.entity.MovieEntity;
-import com.example.KinoKatalog.persistance.sql.repository.CollectionMovieSqlRepository;
-import com.example.KinoKatalog.persistance.sql.repository.CollectionSqlRepository;
+
+import com.example.KinoKatalog.persistence.sql.repository.CollectionMovieSqlRepository;
 import com.example.KinoKatalog.service.CollectionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.KinoKatalog.persistence.sql.entity.CollectionEntity;
+import com.example.KinoKatalog.persistence.sql.entity.CollectionMovieEntity;
+import com.example.KinoKatalog.persistence.sql.repository.CollectionSqlRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;
