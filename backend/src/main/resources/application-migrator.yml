@@ -1,0 +1,7 @@
+spring.datasource.url=jdbc:mysql://localhost:3306/KinoKatalog
+spring.datasource.username=appuser
+spring.datasource.password=apppass
+
+spring.data.mongodb.uri=mongodb://localhost:27017/KinoKatalogDocument
+spring.data.mongodb.username=root
+spring.data.mongodb.password=rootpass

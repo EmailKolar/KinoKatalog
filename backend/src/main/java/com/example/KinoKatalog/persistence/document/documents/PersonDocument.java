@@ -20,5 +20,4 @@ public class PersonDocument {
     private String name;
     private String biography;
     private String birthday;
-    private String placeOfBirth;
 }
