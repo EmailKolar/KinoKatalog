@@ -29,6 +29,27 @@
 	<properties>
 		<java.version>21</java.version>
 	</properties>
+
+	<profiles>
+		<profile>
+			<id>migration</id>
+			<properties>
+				<spring-boot.main-class>com.example.KinoKatalog.migrator.MigrationApplication</spring-boot.main-class>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>default</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<spring-boot.main-class>com.example.KinoKatalog.KinoKatalogApplication</spring-boot.main-class>
+			</properties>
+		</profile>
+	</profiles>
+
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -132,6 +153,20 @@
 						</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>${spring-boot.main-class}</mainClass>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

@@ -5,6 +5,7 @@ import com.example.KinoKatalog.persistence.document.embedded.CastMember;
 import com.example.KinoKatalog.persistence.document.embedded.CompanyInfo;
 import com.example.KinoKatalog.persistence.document.embedded.CrewMember;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
@@ -19,6 +20,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Document("movies")
 public class MovieDocument {
 

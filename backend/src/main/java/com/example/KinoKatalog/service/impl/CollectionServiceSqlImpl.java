@@ -17,7 +17,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@Profile("sql")
 @RequiredArgsConstructor
 @Transactional
 public class CollectionServiceSqlImpl implements CollectionService {
