@@ -2,6 +2,7 @@ package com.example.KinoKatalog.persistence.document.documents;
 
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
@@ -12,6 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document("companies")
+@Builder
 public class CompanyDocument {
 
     @Id

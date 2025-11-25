@@ -115,12 +115,20 @@ CREATE TABLE movie_genres (
   FOREIGN KEY (genre_id) REFERENCES genres(id)
 );
 
+CREATE TABLE movie_companies (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  movie_id INT,
+  company_id INT,
+  FOREIGN KEY (movie_id) REFERENCES movies(id),
+  FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
 CREATE TABLE movie_cast (
+  id INT AUTO_INCREMENT PRIMARY KEY,
   movie_id INT,
   person_id INT,
   movie_character VARCHAR(255),
   billing_order INT,
-  PRIMARY KEY (movie_id, person_id),
   FOREIGN KEY (movie_id) REFERENCES movies(id),
   FOREIGN KEY (person_id) REFERENCES people(id)
 );

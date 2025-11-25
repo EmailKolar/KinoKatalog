@@ -47,8 +47,4 @@ public class MovieDocument {
     private List<CrewMember> crew;
     private List<CompanyInfo> companies;
 
-    // Reference IDs to global collections (OPTIONAL)
-    private List<ObjectId> castPersonIds;
-    private List<ObjectId> crewPersonIds;
-    private List<ObjectId> companyIds;
 }

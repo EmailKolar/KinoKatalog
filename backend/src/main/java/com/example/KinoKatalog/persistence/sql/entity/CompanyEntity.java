@@ -19,5 +19,6 @@ public class CompanyEntity {
 
     private String name;
 
+    @Column(name = "origin_country")
     private String originCountry;
 }

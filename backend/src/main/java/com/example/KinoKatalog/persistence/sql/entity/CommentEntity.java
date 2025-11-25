@@ -30,7 +30,7 @@ public class CommentEntity {
     @JsonBackReference
     private UserEntity userEntity;
 
-    @Column(length = 2000)
+    @Column(name = "comment_text", length = 2000)
     private String commentText;
 
     @Column(name = "created_at", updatable = false)

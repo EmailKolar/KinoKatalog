@@ -31,8 +31,10 @@ public class MovieCastEntity {
     private PersonEntity personEntity;
 
 
+    @Column(name = "movie_character")
     private String character;
 
+    @Column(name = "billing_order")
     private Integer billingOrder;
 
 }

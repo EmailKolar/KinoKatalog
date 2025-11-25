@@ -2,6 +2,7 @@ package com.example.KinoKatalog.persistence.document.documents;
 
 import com.example.KinoKatalog.persistence.document.embedded.Comment;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,12 +11,15 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Document("reviews")
+@Builder
 public class ReviewDocument {
 
     @Id
@@ -27,7 +31,7 @@ public class ReviewDocument {
     private Integer rating;
     private String reviewText;
 
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     private List<Comment> comments;
 }
