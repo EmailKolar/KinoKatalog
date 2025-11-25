@@ -1,16 +1,18 @@
 package com.example.KinoKatalog.persistence.document.embedded;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class CastMember {
 
     private Integer tmdbId;
     private String name;
     private String character;
-    private Integer order;
+    private Integer billingOrder;
 }

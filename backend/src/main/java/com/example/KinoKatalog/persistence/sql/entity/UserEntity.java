@@ -1,11 +1,13 @@
 package com.example.KinoKatalog.persistence.sql.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -34,6 +36,10 @@ public class UserEntity {
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+/*
+    @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
+    private List<CollectionEntity> collections;*/
 
     @PrePersist
     protected void onCreate() {

@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 
 
 @Service
-@Profile("sql")
 @RequiredArgsConstructor
 public class MovieServiceSqlImpl implements MovieService {
 
