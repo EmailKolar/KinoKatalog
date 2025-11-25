@@ -3,6 +3,7 @@ package com.example.KinoKatalog.persistence.document.documents;
 import com.example.KinoKatalog.persistence.document.embedded.UserCollection;
 import com.example.KinoKatalog.persistence.document.embedded.Watchlist;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,12 +12,14 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Document("users")
+@Builder
 public class UserDocument {
 
     @Id
@@ -28,7 +31,7 @@ public class UserDocument {
     private Boolean isVerified;
     private String fullName;
 
-    private Instant createdAt;
+    private LocalDateTime createdAt;
     private String role;
 
     private Watchlist watchlist;

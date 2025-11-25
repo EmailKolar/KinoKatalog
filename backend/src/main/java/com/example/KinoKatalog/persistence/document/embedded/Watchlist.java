@@ -1,17 +1,20 @@
 package com.example.KinoKatalog.persistence.document.embedded;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Watchlist {
 
-    private List<String> movieIds;
-    private Instant updatedAt;
+    private List<Integer> movieIds;
+    private LocalDateTime updatedAt;
 }
