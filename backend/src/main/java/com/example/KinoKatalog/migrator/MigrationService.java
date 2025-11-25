@@ -1,22 +1,14 @@
 package com.example.KinoKatalog.migrator;
 
-import com.example.KinoKatalog.persistence.document.documents.CompanyDocument;
-import com.example.KinoKatalog.persistence.document.documents.MovieDocument;
-import com.example.KinoKatalog.persistence.document.documents.PersonDocument;
-import com.example.KinoKatalog.persistence.document.documents.ReviewDocument;
-import com.example.KinoKatalog.persistence.document.embedded.CastMember;
-import com.example.KinoKatalog.persistence.document.embedded.Comment;
-import com.example.KinoKatalog.persistence.document.embedded.CompanyInfo;
-import com.example.KinoKatalog.persistence.document.embedded.CrewMember;
-import com.example.KinoKatalog.persistence.document.repository.CompanyDocumentRepository;
-import com.example.KinoKatalog.persistence.document.repository.MovieDocumentRepository;
-import com.example.KinoKatalog.persistence.document.repository.PersonDocumentRepository;
-import com.example.KinoKatalog.persistence.document.repository.ReviewDocumentRepository;
+import com.example.KinoKatalog.persistence.document.documents.*;
+import com.example.KinoKatalog.persistence.document.embedded.*;
+import com.example.KinoKatalog.persistence.document.repository.*;
 import com.example.KinoKatalog.persistence.sql.entity.*;
 import com.example.KinoKatalog.persistence.sql.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -30,6 +22,11 @@ public class MigrationService {
     private final CompanyDocumentRepository companyDocRepo;
     private final ReviewSqlRepository reviewSqlRepo;
     private final ReviewDocumentRepository reviewDocRepo;
+    private final UserSqlRepository userSqlRepo;
+    private final UserDocumentRepository userDocRepo;
+    private final CollectionSqlRepository collectionRepo;
+    private final CollectionMovieSqlRepository collectionMovieRepo;
+    private final WatchlistSqlRepository watchlistSqlRepo;
 
 
     public MigrationService(MovieDocumentRepository movieDocRepo,
@@ -38,7 +35,12 @@ public class MigrationService {
                             CompanySqlRepository companySqlRepo,
                             CompanyDocumentRepository companyDocRepo,
                             ReviewSqlRepository reviewSqlRepo,
-                            ReviewDocumentRepository reviewDocRepo) {
+                            ReviewDocumentRepository reviewDocRepo,
+                            UserSqlRepository userSqlRepo,
+                            UserDocumentRepository userDocRepo,
+                            CollectionSqlRepository collectionRepo,
+                            CollectionMovieSqlRepository collectionMovieRepo,
+                            WatchlistSqlRepository watchlistSqlRepo) {
         this.movieDocRepo = movieDocRepo;
         this.movieSqlRepo = movieSqlRepo;
         this.personSqlRepo = personSqlRepo;
@@ -47,6 +49,12 @@ public class MigrationService {
         this.companyDocRepo = companyDocRepo;
         this.reviewSqlRepo = reviewSqlRepo;
         this.reviewDocRepo = reviewDocRepo;
+        this.userSqlRepo = userSqlRepo;
+        this.userDocRepo = userDocRepo;
+        this.collectionRepo = collectionRepo;
+        this.collectionMovieRepo = collectionMovieRepo;
+        this.watchlistSqlRepo = watchlistSqlRepo;
+
     }
 
     @Transactional
@@ -55,7 +63,7 @@ public class MigrationService {
         migratePersons();
         migrateCompanies();
         migrateReviews();
-        //migrateUsers();
+        migrateUsers();
     }
 
     private void migrateMovies() {
@@ -156,6 +164,64 @@ public class MigrationService {
         }
     }
     private void migrateUsers() {
+
+        List<UserEntity> users = userSqlRepo.findAll();
+
+        for (UserEntity u : users) {
+
+            List<CollectionEntity> collectionEntities = collectionRepo.findByUserId(u.getId());
+
+            List<UserCollection> collectionDocs = collectionEntities.stream()
+                    .map(c -> {
+                        // movies inside this collection
+                        List<CollectionMovieEntity> movieEntities =
+                                collectionMovieRepo.findByCollectionId(c.getId());
+
+                        List<CollectionMovieEntity> movies = movieEntities.stream()
+                                .map(cm -> CollectionMovieEntity.builder()
+                                        .movieId(cm.getMovieId())
+                                        .createdAt(cm.getCreatedAt())
+                                        .build()
+                                ).toList();
+                        return UserCollection.builder()
+                                .name(c.getName())
+                                .description(c.getDescription())
+                                .createdAt(c.getCreatedAt())
+                                .movieIds(movies.stream()
+                                        .map(CollectionMovieEntity::getMovieId)
+                                        .toList())
+                                .build();
+                    }).toList();
+
+            List<WatchlistEntity> watchlistEntities = watchlistSqlRepo.findByUserId(u.getId());
+            Watchlist watchlistDoc = Watchlist.builder()
+                    .movieIds(
+                            watchlistEntities.stream()
+                                    .map(w -> w.getMovie().getId()) // SQL integer IDs
+                                    .toList()
+                    )
+                    .updatedAt(
+                            watchlistEntities.stream()
+                                    .map(WatchlistEntity::getAddedAt)
+                                    .max(LocalDateTime::compareTo)
+                                    .orElse(null)
+                    )
+                    .build();
+
+
+            UserDocument doc = UserDocument.builder()
+                            .username(u.getUsername())
+                            .email(u.getEmail())
+                            .passwordHash(u.getPasswordHash())
+                            .isVerified(u.getIsVerified())
+                            .role(u.getRole())
+                            .createdAt(u.getCreatedAt())
+                            .collections(collectionDocs)
+                            .watchlist(watchlistDoc)
+                            .build();
+
+            userDocRepo.save(doc);
+        }
 
     }
 
