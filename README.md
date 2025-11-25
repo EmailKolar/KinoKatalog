@@ -12,13 +12,13 @@ default spring security creds: temporarily avail in SecurityConfig.java
 
 
 
-#migration
+# Migration Guide
 
 1. to run migration start the docker compose
 
 2. POST to 
 
-´´´http://localhost:8080/admin/run-migration´´´
+´´´ http://localhost:8080/admin/run-migration ´´´
 
 3. to see results go to localhost:8082 (mongo express)
 
