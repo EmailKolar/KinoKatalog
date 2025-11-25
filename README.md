@@ -20,6 +20,8 @@ default spring security creds: temporarily avail in SecurityConfig.java
 
 ´´´ http://localhost:8080/admin/run-migration ´´´
 
+use basic auth (admin, adminpass) (this is temp)
+
 3. to see results go to localhost:8082 (mongo express)
 
 
