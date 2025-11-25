@@ -6,24 +6,29 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-import java.util.Set;
 
 @Entity
-@Table(name = "genres")
+@Table(name = "movie_companies")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GenreEntity {
+public class CompanyMovieEntity {
 
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String name;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "movie_id", nullable = false)
+    @JsonBackReference
+    private MovieEntity movieEntity;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id", nullable = false)
+    @JsonBackReference
+    private CompanyEntity companyEntity;
 
 
 }

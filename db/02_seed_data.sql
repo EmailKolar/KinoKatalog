@@ -1851,3 +1851,5 @@ INSERT INTO watchlists (id, user_id, movie_id, added_at) VALUES (17, 9, 715287, 
 INSERT INTO watchlists (id, user_id, movie_id, added_at) VALUES (18, 9, 1337395, NOW());
 INSERT INTO watchlists (id, user_id, movie_id, added_at) VALUES (19, 10, 1447287, NOW());
 INSERT INTO watchlists (id, user_id, movie_id, added_at) VALUES (20, 10, 1078605, NOW());
+INSERT INTO tags (id, name) VALUES (1, "Marxist");
+INSERT INTO movie_tags (movie_id, tag_id) VALUES (617126, 1);

@@ -7,15 +7,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.Set;
 
 @Entity
-@Table(name = "genres")
+@Table(name = "tags")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GenreEntity {
-
+public class TagEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +21,8 @@ public class GenreEntity {
 
     private String name;
 
-
-
-
+/*
+    @ManyToMany(mappedBy = "movies")
+    @JsonBackReference
+    private List<MovieEntity> movies;*/
 }

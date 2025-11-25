@@ -15,6 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -37,7 +38,7 @@ public class MovieDocument {
     private Integer reviewCount;
 
     private String posterUrl;
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     // Embedded lists for fast movie reads
     private List<String> genres;

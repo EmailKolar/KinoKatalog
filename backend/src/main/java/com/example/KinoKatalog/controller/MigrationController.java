@@ -19,11 +19,11 @@ public class MigrationController {
 
 
     @PostMapping("/run-migration")
-    public ResponseEntity<String> runMigration() {
-/*
+    public ResponseEntity<String> runMigration(@RequestHeader("X-MIGRATION-KEY") String key) {
+
         if (!"SUPERSECRET".equals(key)) {
             return ResponseEntity.status(403).body("Forbidden");
-        }*/
+        }
 
         migrationService.migrate();
         return ResponseEntity.ok("Migration done");

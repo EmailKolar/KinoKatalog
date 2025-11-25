@@ -1,5 +1,6 @@
 package com.example.KinoKatalog.persistence.sql.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,6 +9,8 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "movies")
@@ -41,6 +44,35 @@ public class MovieEntity {
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+
+    @ManyToMany
+    @JoinTable(
+        name = "movie_genres",
+        joinColumns = @JoinColumn(name = "movie_id"),
+        inverseJoinColumns = @JoinColumn(name = "genre_id")
+    )
+    private List<GenreEntity> genres;
+    @ManyToMany
+    @JoinTable(
+            name = "movie_tags",
+            joinColumns = @JoinColumn(name = "movie_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private List<TagEntity> tags;
+
+    @OneToMany(mappedBy = "movieEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
+    private List<MovieCrewEntity> crew;
+
+    @OneToMany(mappedBy = "movieEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
+    private List<MovieCastEntity> cast;
+
+    @OneToMany(mappedBy = "movieEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
+    private List<CompanyMovieEntity> companies;
+
 
     @PrePersist
     protected void onCreate() {
