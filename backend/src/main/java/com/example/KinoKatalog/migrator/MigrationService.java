@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@RequiredArgsConstructor
 @Service
 public class MigrationService {
 
@@ -30,6 +29,22 @@ public class MigrationService {
     private final CollectionMovieSqlRepository collectionMovieRepo;
     private final WatchlistSqlRepository watchlistSqlRepo;
 
+
+    public MigrationService(MovieDocumentRepository movieDocRepo, MovieSqlRepository movieSqlRepo, PersonSqlRepository personSqlRepo, PersonDocumentRepository personDocRepo, CompanySqlRepository companySqlRepo, CompanyDocumentRepository companyDocRepo, ReviewSqlRepository reviewSqlRepo, ReviewDocumentRepository reviewDocRepo, UserSqlRepository userSqlRepo, UserDocumentRepository userDocRepo, CollectionSqlRepository collectionRepo, CollectionMovieSqlRepository collectionMovieRepo, WatchlistSqlRepository watchlistSqlRepo) {
+        this.movieDocRepo = movieDocRepo;
+        this.movieSqlRepo = movieSqlRepo;
+        this.personSqlRepo = personSqlRepo;
+        this.personDocRepo = personDocRepo;
+        this.companySqlRepo = companySqlRepo;
+        this.companyDocRepo = companyDocRepo;
+        this.reviewSqlRepo = reviewSqlRepo;
+        this.reviewDocRepo = reviewDocRepo;
+        this.userSqlRepo = userSqlRepo;
+        this.userDocRepo = userDocRepo;
+        this.collectionRepo = collectionRepo;
+        this.collectionMovieRepo = collectionMovieRepo;
+        this.watchlistSqlRepo = watchlistSqlRepo;
+    }
 
     @Transactional
     public void migrate() {
