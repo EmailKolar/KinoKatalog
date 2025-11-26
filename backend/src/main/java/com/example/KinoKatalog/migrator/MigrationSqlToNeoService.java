@@ -53,7 +53,7 @@ public class MigrationSqlToNeoService {
         this.tagNodeRepo = tagNodeRepo;
     }
 
-    @Transactional
+
     public void migrate() {
         migrateMovies();
         /*migratePersons();
@@ -73,7 +73,7 @@ public class MigrationSqlToNeoService {
     private void migrateMovies() {
         movieSqlRepo.findAll().forEach(m -> {
             MovieNode movie = new MovieNode();
-            movie.setId(m.getId());
+            movie.setId(m.getId().toString());
             movie.setTitle(m.getTitle());
             movie.setReleaseDate(m.getReleaseDate());
             movie.setRuntime(m.getRuntime());

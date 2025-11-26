@@ -1,8 +1,8 @@
 package com.example.KinoKatalog.persistence.graph.relationships;
 
 import com.example.KinoKatalog.persistence.graph.nodes.MovieNode;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import org.springframework.data.neo4j.core.schema.GeneratedValue;
+import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.RelationshipProperties;
 import org.springframework.data.neo4j.core.schema.TargetNode;
 
@@ -11,7 +11,8 @@ public class CrewMemberRelation {
 
     @Id
     @GeneratedValue
-    private Long id;
+    private String id;
+
     private String job;
 
     @TargetNode

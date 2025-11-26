@@ -46,7 +46,7 @@ public class MigrationService {
         this.watchlistSqlRepo = watchlistSqlRepo;
     }
 
-    @Transactional
+
     public void migrate() {
         migrateMovies();
         migratePersons();
