@@ -2,9 +2,9 @@ import axios, { AxiosRequestConfig } from "axios";
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  params: {
+ /*  params: {
     key: import.meta.env.VITE_API_KEY,
-  },
+  }, */
 });
 
 class ApiClient<T> {

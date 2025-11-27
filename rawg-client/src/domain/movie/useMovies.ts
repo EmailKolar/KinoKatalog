@@ -1,11 +1,11 @@
-/*
+
 import { Movie } from "./movie";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Response } from "../../services/api-client";
 import ApiClient from "../../services/api-client";
 import useMovieQueryStore from "../../state";
 
-const apiClient = new ApiClient<Movie>("/movies");
+const apiClient = new ApiClient<Movie>("movies");
 
 const useMovies = () => {
   // adjust selector to match your store shape (e.g. movieQuery or searchText)
@@ -17,8 +17,6 @@ const useMovies = () => {
       apiClient.getAll({
         params: {
           // map your movieQuery fields to the API params you need
-          genres: movieQuery?.genreId,
-          providers: movieQuery?.providerId,
           ordering: movieQuery?.sortOrder,
           search: movieQuery?.searchText,
           page: pageParam,
@@ -30,4 +28,4 @@ const useMovies = () => {
   });
 };
 
-export default useMovies; */
+export default useMovies; 

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-interface GameQuery {
+/* interface GameQuery {
   genreId?: number;
   platformId?: number;
   storeId?: number;
@@ -31,43 +31,28 @@ const useGameQueryStore = create<GameQueryStore>((set) => ({
     set((state) => ({ gameQuery: { ...state.gameQuery, searchText } })),
 }));
 
-export default useGameQueryStore;
+export default useGameQueryStore; */
 
 // use this when API is up and running
 
-/* import type { Movie } from './domain/movie/movie';
 
-type MovieQueryState = {
+interface MovieQuery {
+  sortOrder: string;
+  searchText: string;
+}
+
+interface MovieQueryStore {
+  movieQuery: MovieQuery;
   searchText: string;
   setSearchText: (text: string) => void;
   clearSearch: () => void;
+}
 
-  results: Movie[];
-  setResults: (movies: Movie[]) => void;
-  clearResults: () => void;
-
-  loading: boolean;
-  setLoading: (v: boolean) => void;
-
-  error: string | null;
-  setError: (e: string | null) => void;
-};
-
-const useMovieQueryStore = create<MovieQueryState>((set) => ({
+const useMovieQueryStore = create<MovieQueryStore>((set) => ({
+  movieQuery: {} as MovieQuery,
   searchText: '',
-  setSearchText: (text: string) => set({ searchText: text }),
-
-  clearSearch: () => set({ searchText: '' }),
-
-  results: [],
-  setResults: (movies: Movie[]) => set({ results: movies }),
-  clearResults: () => set({ results: [] }),
-
-  loading: false,
-  setLoading: (v: boolean) => set({ loading: v }),
-
-  error: null,
-  setError: (e: string | null) => set({ error: e }),
+  setSearchText: (text: string) => set(() => ({ searchText: text })),
+  clearSearch: () => set(() => ({ searchText: '' })),
 }));
 
-export default useMovieQueryStore; */
+export default useMovieQueryStore; 

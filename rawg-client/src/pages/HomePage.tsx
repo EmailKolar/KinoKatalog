@@ -1,18 +1,20 @@
 import { Box, Grid, GridItem, HStack, Show } from "@chakra-ui/react";
 
-import GameGrid from "../domain/game/GameGrid";
-import useGenres from "../domain/genre/useGenres";
-import PlatformSelector from "../domain/platform/PlatformSelector";
-import useStores from "../domain/store/useStores";
-import CustomList from "../components/CustomList";
-import SortSelector from "../components/SortSelector";
-import GameHeading from "../domain/game/GameHeading";
-import useGameQueryStore from "../state";
+//import GameGrid from "../domain/game/GameGrid";
+//import useGenres from "../domain/genre/useGenres";
+//import CustomList from "../components/CustomList";
+//import SortSelector from "../components/SortSelector";
+//import GameHeading from "../domain/game/GameHeading";
+//import useGameQueryStore from "../state";
+//import useMovieQueryStore from "../state";
+import MovieGrid from "../domain/movie/MovieGrid";
+
 
 function HomePage() {
-  const { genreId, storeId } = useGameQueryStore((s) => s.gameQuery);
-  const setGenreId = useGameQueryStore((s) => s.setGenreId);
-  const setStoreId = useGameQueryStore((s) => s.setStoreId);
+  //const { genreId, /*storeId */} = useGameQueryStore((s) => s.gameQuery);
+  //const setGenreId = useGameQueryStore((s) => s.setGenreId);
+  //const setStoreId = useGameQueryStore((s) => s.setStoreId);
+
   
 
   return (
@@ -27,28 +29,28 @@ function HomePage() {
 
       <Show above="lg">
         <GridItem area={"aside"}>
-          <CustomList
+          {/*<CustomList
             title="Genres"
             onSelectedItemId={setGenreId}
             selectedItemId={genreId}
             useDataHook={useGenres}
-          />
-          <CustomList
+          />*/}
+          {/* <CustomList
             title="Stores"
             onSelectedItemId={setStoreId}
             selectedItemId={storeId}
             useDataHook={useStores}
-          />
+          /> */}
         </GridItem>
       </Show>
       <GridItem area={"main"}>
         <Box paddingLeft={2}>
-          <GameHeading />
+          {/*<GameHeading />*/}
           <HStack>
-            <PlatformSelector />
-            <SortSelector />
+            {/* <PlatformSelector /> */}
+            {/*<SortSelector />*/}
           </HStack>
-          <GameGrid />
+          <MovieGrid />
         </Box>
       </GridItem>
     </Grid>
