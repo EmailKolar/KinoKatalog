@@ -31,12 +31,12 @@
 	</properties>
 
 	<profiles>
-		<profile>
+<!--		<profile>
 			<id>migration</id>
 			<properties>
-				<spring-boot.main-class>com.example.KinoKatalog.migrator.MigrationApplication</spring-boot.main-class>
+				<spring-boot.main-class>com.example.kinokatalog.migrator.MigrationApplication</spring-boot.main-class>
 			</properties>
-		</profile>
+		</profile>-->
 
 		<profile>
 			<id>default</id>
@@ -44,7 +44,7 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
-				<spring-boot.main-class>com.example.KinoKatalog.KinoKatalogApplication</spring-boot.main-class>
+				<spring-boot.main-class>com.example.kinokatalog.KinoKatalogApplication</spring-boot.main-class>
 			</properties>
 		</profile>
 	</profiles>
@@ -131,6 +131,15 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-neo4j</artifactId>
 		</dependency>
+
+
+
+		<dependency>
+			<groupId>org.neo4j.driver</groupId>
+			<artifactId>neo4j-java-driver</artifactId>
+			<version>5.20.0</version>
+		</dependency>
+
 
 
 	</dependencies>
