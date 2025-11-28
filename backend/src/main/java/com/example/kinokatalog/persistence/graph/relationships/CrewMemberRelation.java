@@ -11,7 +11,7 @@ public class CrewMemberRelation {
 
     @Id
     @GeneratedValue
-    private String id;
+    private Long id;
 
     private String job;
 

@@ -20,7 +20,7 @@ public class CommentNode {
 
     @Id
     @GeneratedValue
-    private String id;
+    private Long id;
 
     private String text;
     private LocalDateTime createdAt;

@@ -21,7 +21,7 @@ public class CollectionNode {
 
     @Id
     @GeneratedValue
-    private String id;
+    private Long id;
 
     private String name;
     private String description;

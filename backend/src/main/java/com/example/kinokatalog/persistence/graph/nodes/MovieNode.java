@@ -16,7 +16,10 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+
+import static org.springframework.data.neo4j.core.schema.Relationship.Direction.INCOMING;
 
 @Node("Movie")
 @AllArgsConstructor
@@ -49,35 +52,28 @@ public class MovieNode {
     private LocalDateTime createdAt;
 
     @Relationship(type = "HAS_GENRE", direction = Relationship.Direction.OUTGOING)
-    private GenreNode genre;
+    private List<GenreNode> genres = new ArrayList<>();
 
     @Relationship(type = "HAS_TAG", direction = Relationship.Direction.OUTGOING)
-    private TagNode tag;
-
+    private List<TagNode> tags = new ArrayList<>();
+/*
     @Relationship(type = "PRODUCED_BY", direction = Relationship.Direction.OUTGOING)
-    private CompanyNode company;
+    private List<CompanyNode> companies = new ArrayList<>();
 
-    @Relationship(type = "ACTED_IN", direction = Relationship.Direction.INCOMING)
-    private List<ActedInRelation> cast;
-
-    @Relationship(type = "CREW_MEMBER", direction = Relationship.Direction.INCOMING)
-    private List<CrewMemberRelation> crew;
-
-    @Relationship(type = "CONTAINS_MOVIE", direction = Relationship.Direction.INCOMING)
+    @Relationship(type = "CONTAINS_MOVIE", direction = INCOMING)
     private CollectionNode collection;
 
-    @Relationship(type = "HAS_IN_WATCHLIST", direction = Relationship.Direction.INCOMING)
-    private List<WatchlistRelation> watchlistedBy;
-
-    @Relationship(type = "FOR", direction = Relationship.Direction.INCOMING)
+    @Relationship(type = "FOR", direction = INCOMING)
     private ReviewNode review;
 
+    @Relationship(type = "ACTED_IN", direction = INCOMING)
+    private List<PersonNode> cast; // NO RELATION CLASS HERE
 
+    @Relationship(type = "CREW_MEMBER", direction = INCOMING)
+    private List<PersonNode> crew; // NO RELATION CLASS HERE
 
+    @Relationship(type = "HAS_IN_WATCHLIST", direction = INCOMING)
+    private List<UserNode> watchlistedBy; // NO RELATION CLASS HERE
 
-
-
-
-
-
+    */
 }

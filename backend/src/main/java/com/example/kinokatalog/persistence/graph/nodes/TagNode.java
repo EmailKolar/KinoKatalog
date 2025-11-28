@@ -10,6 +10,9 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @RequiredArgsConstructor
@@ -20,12 +23,14 @@ public class TagNode {
 
     @Id
     @GeneratedValue
-    private String id;
+    private Long id;
 
     private String name;
 
+    private Integer tmdbId;
+
     @Relationship(type = "HAS_TAG", direction = Relationship.Direction.INCOMING)
-    private MovieNode movie;
+    private List<MovieNode> movies = new ArrayList<>();
 
 
 }

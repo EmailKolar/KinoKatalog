@@ -108,9 +108,9 @@ CREATE TABLE comments (
 
 -- JOIN TABLES
 CREATE TABLE movie_genres (
+  id INT AUTO_INCREMENT PRIMARY KEY,
   movie_id INT,
   genre_id INT,
-  PRIMARY KEY (movie_id, genre_id),
   FOREIGN KEY (movie_id) REFERENCES movies(id),
   FOREIGN KEY (genre_id) REFERENCES genres(id)
 );

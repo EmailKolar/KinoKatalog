@@ -11,7 +11,10 @@ import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+
+import static org.springframework.data.neo4j.core.schema.Relationship.Direction.OUTGOING;
 
 @Builder
 @AllArgsConstructor
@@ -22,7 +25,7 @@ public class UserNode {
 
     @Id
     @GeneratedValue
-    private String id;
+    private Long id;
 
 
     private String username;
@@ -33,15 +36,17 @@ public class UserNode {
     private LocalDateTime createdAt;
     private String role;
 
-    @Relationship(type = "WROTE_REVIEW", direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = "WROTE_REVIEW", direction = OUTGOING)
     private ReviewNode review;
 
-    @Relationship(type = "WROTE_COMMENT", direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = "WROTE_COMMENT", direction = OUTGOING)
     private CommentNode comment;
 
-    @Relationship(type = "CREATED_COLLECTION", direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = "CREATED_COLLECTION", direction = OUTGOING)
     private CollectionNode collection;
 
-    @Relationship(type = "HAS_IN_WATCHLIST", direction = Relationship.Direction.OUTGOING)
-    private List<WatchlistRelation> watchlist;
+
+    @Relationship(type = "HAS_IN_WATCHLIST", direction = OUTGOING)
+    private List<WatchlistRelation> watchlist = new ArrayList<>();
+
 }

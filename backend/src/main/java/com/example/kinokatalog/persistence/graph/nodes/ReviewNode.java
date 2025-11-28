@@ -20,7 +20,7 @@ public class ReviewNode {
 
     @Id
     @GeneratedValue
-    private String id;
+    private Long id;
 
 
     private Integer rating;

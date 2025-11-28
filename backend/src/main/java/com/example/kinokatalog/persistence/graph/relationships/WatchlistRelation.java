@@ -13,7 +13,7 @@ public class WatchlistRelation {
 
     @Id
     @GeneratedValue
-    private String id;
+    private Long id;
 
 
     private LocalDateTime addedAt;

@@ -12,7 +12,10 @@ import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+
+import static org.springframework.data.neo4j.core.schema.Relationship.Direction.OUTGOING;
 
 @Builder
 @AllArgsConstructor
@@ -23,7 +26,7 @@ public class PersonNode {
 
     @Id
     @GeneratedValue
-    private String id;
+    private Long id;
 
 
     private Integer tmdbId;
@@ -32,9 +35,15 @@ public class PersonNode {
     private LocalDate birthDate;
 
 
-    @Relationship(type = "ACTED_IN")
-    private List<ActedInRelation> actedIn;
 
-    @Relationship(type = "CREW_MEMBER")
-    private List<CrewMemberRelation> crew;
+
+    @Relationship(type = "ACTED_IN", direction = OUTGOING)
+    private List<ActedInRelation> actedIn = new ArrayList<>();
+
+
+
+
+    @Relationship(type = "CREW_MEMBER", direction = OUTGOING)
+    private List<CrewMemberRelation> crewJobs = new ArrayList<>();
+
 }
