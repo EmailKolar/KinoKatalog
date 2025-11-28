@@ -4,48 +4,35 @@ import MovieCard from "./MovieCard";
 import MovieCardSkeleton from "./MovieCardSkeleton";
 import MovieCardContainer from "./MovieCardContainer";
 import React from "react";
-import InfiniteScroll from "react-infinite-scroll-component";
 
 const MovieGrid = () => {
   const skeletons = [...Array(20).keys()];
-
-  const { data, error, isLoading, fetchNextPage, hasNextPage } = useMovies();
+  const { data, error, isLoading } = useMovies();
 
   if (error) return <Text color="tomato">{error.message}</Text>;
 
-  const fetchedMoviesCount =
-    data?.pages.reduce((total, page) => total + page.results.length, 0) || 0;
-
   return (
-    <InfiniteScroll
-      dataLength={fetchedMoviesCount}
-      next={fetchNextPage}
-      hasMore={!!hasNextPage}
-      loader={<Spinner />}
-      scrollThreshold={1}
+    <SimpleGrid
+      columns={{ base: 1, md: 2, lg: 3, xl: 4 }}
+      spacing={4}
+      paddingY={10}
     >
-      <SimpleGrid
-        columns={{ base: 1, md: 2, lg: 3, xl: 4 }}
-        spacing={4}
-        paddingY={10}
-      >
-        {isLoading
-          ? skeletons.map((skeleton) => (
-              <MovieCardContainer key={skeleton}>
-                <MovieCardSkeleton />
-              </MovieCardContainer>
-            ))
-          : data?.pages.map((page, index) => (
-              <React.Fragment key={index}>
-                {page.results.map((movie) => (
-                  <MovieCardContainer key={movie.id}>
-                    <MovieCard movie={movie} />
-                  </MovieCardContainer>
-                ))}
-              </React.Fragment>
-            ))}
-      </SimpleGrid>
-    </InfiniteScroll>
+      {isLoading
+        ? skeletons.map((skeleton) => (
+            <MovieCardContainer key={skeleton}>
+              <MovieCardSkeleton />
+            </MovieCardContainer>
+          ))
+        : data && data.length > 0
+        ? data.map((movie) => (
+            <MovieCardContainer key={movie.id}>
+              <MovieCard movie={movie} />
+            </MovieCardContainer>
+          ))
+        : (
+          <Text>No movies found.</Text>
+        )}
+    </SimpleGrid>
   );
 };
 

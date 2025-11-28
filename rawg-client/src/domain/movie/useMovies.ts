@@ -1,6 +1,5 @@
-
 import { Movie } from "./movie";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Response } from "../../services/api-client";
 import ApiClient from "../../services/api-client";
 import useMovieQueryStore from "../../state";
@@ -11,21 +10,16 @@ const useMovies = () => {
   // adjust selector to match your store shape (e.g. movieQuery or searchText)
   const movieQuery = useMovieQueryStore((s) => s.movieQuery);
 
-  return useInfiniteQuery<Response<Movie>, Error>({
-    queryKey: ["movies", movieQuery],
-    queryFn: ({ pageParam = 1 }) =>
-      apiClient.getAll({
-        params: {
-          // map your movieQuery fields to the API params you need
-          ordering: movieQuery?.sortOrder,
-          search: movieQuery?.searchText,
-          page: pageParam,
-        },
-      }),
-    getNextPageParam: (lastPage, allPages) => {
-      return lastPage.next ? allPages.length + 1 : undefined;
-    },
-  });
+  return useQuery<Movie[], Error>({
+  queryKey: ["movies", movieQuery],
+  queryFn: () =>
+    apiClient.getAll({
+      params: {
+        ordering: movieQuery?.sortOrder,
+        search: movieQuery?.searchText,
+      },
+    }),
+});
 };
 
-export default useMovies; 
+export default useMovies;
