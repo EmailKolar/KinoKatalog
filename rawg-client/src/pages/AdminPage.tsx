@@ -25,7 +25,7 @@ import {
 import { MdDelete } from "react-icons/md";
 import useMovies from "../domain/movie/useMovies";
 import useAddMovie from "../domain/movie/useAddMovie";
-import useDeleteMovie from "../domain/movie/useDeleteMovie";
+import useDeleteMovie from "../domain/movie/UseDeleteMovie";
 
 const AdminPage = () => {
   const { data: movies, isLoading, error } = useMovies();

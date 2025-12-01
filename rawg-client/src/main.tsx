@@ -8,6 +8,10 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import ms from "ms";
 import { RouterProvider } from "react-router-dom";
 import router from "./routes";
+// ...existing code...
+// changed code: add AuthProvider import
+import { AuthProvider } from "./services/auth";
+// ...existing code...
 
 const queryClient = new QueryClient(
   {
@@ -24,14 +28,15 @@ const queryClient = new QueryClient(
   }
 );
 
-
-
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <ChakraProvider theme={theme}>
       <ColorModeScript initialColorMode={theme.config.initialColorMode} />
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router}/>
+        {/* changed code: wrap RouterProvider with AuthProvider */}
+        <AuthProvider>
+          <RouterProvider router={router} />
+        </AuthProvider>
         <ReactQueryDevtools />
       </QueryClientProvider>
     </ChakraProvider>

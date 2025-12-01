@@ -36,6 +36,9 @@ public class UserEntity {
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "full_name")
+    private String fullName;
 /*
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference
