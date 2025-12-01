@@ -22,10 +22,13 @@ public class CommentNode {
     @GeneratedValue
     private Long id;
 
+    private Integer sqlId;
+
+
     private String text;
     private LocalDateTime createdAt;
 
-    @Relationship(type = "COMMENTED_ON" , direction = Relationship.Direction.INCOMING)
+    @Relationship(type = "COMMENTED_ON" , direction = Relationship.Direction.OUTGOING)
     private UserNode user;
 
     @Relationship(type = "ON" , direction = Relationship.Direction.OUTGOING)

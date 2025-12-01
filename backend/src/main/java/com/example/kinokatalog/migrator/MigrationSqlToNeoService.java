@@ -30,6 +30,8 @@ public class MigrationSqlToNeoService {
     private final MovieCastSqlRepository movieCastSqlRepo;
     private final MovieCrewSqlRepository movieCrewSqlRepo;
     private final PersonSqlRepository personSqlRepo;
+    private final ReviewSqlRepository reviewSqlRepo;
+    private final CommentSqlRepository commentSqlRepo;
 
 
     // Neo4j repositories
@@ -38,6 +40,8 @@ public class MigrationSqlToNeoService {
     private final TagNodeRepository tagNodeRepo;
     private final CompanyNodeRepository companyNodeRepo;
     private final PersonNodeRepository personNodeRepo;
+    private final ReviewNodeRepository reviewNodeRepo;
+    private final CommentNodeRepository commentNodeRepo;
 
     private final Neo4jClient neo4jClient;
 
@@ -50,11 +54,11 @@ public class MigrationSqlToNeoService {
             CompanySqlRepository companySqlRepo,
             MovieGenreSqlRepository movieGenreSqlRepo,
             MovieTagSqlRepository movieTagSqlRepo,
-            CompanyMovieSqlRepository companyMovieSqlRepo, MovieCastSqlRepository movieCastSqlRepo, MovieCrewSqlRepository movieCrewSqlRepo, PersonSqlRepository personSqlRepo,
+            CompanyMovieSqlRepository companyMovieSqlRepo, MovieCastSqlRepository movieCastSqlRepo, MovieCrewSqlRepository movieCrewSqlRepo, PersonSqlRepository personSqlRepo, ReviewSqlRepository reviewSqlRepo, CommentSqlRepository commentSqlRepo,
             MovieNodeRepository movieNodeRepo,
             GenreNodeRepository genreNodeRepo,
             TagNodeRepository tagNodeRepo,
-            CompanyNodeRepository companyNodeRepo, PersonNodeRepository personNodeRepo,
+            CompanyNodeRepository companyNodeRepo, PersonNodeRepository personNodeRepo, ReviewNodeRepository reviewNodeRepo, CommentNodeRepository commentNodeRepo,
             Neo4jClient neo4jClient
     ) {
         this.movieSqlRepo = movieSqlRepo;
@@ -67,11 +71,15 @@ public class MigrationSqlToNeoService {
         this.movieCastSqlRepo = movieCastSqlRepo;
         this.movieCrewSqlRepo = movieCrewSqlRepo;
         this.personSqlRepo = personSqlRepo;
+        this.reviewSqlRepo = reviewSqlRepo;
+        this.commentSqlRepo = commentSqlRepo;
         this.movieNodeRepo = movieNodeRepo;
         this.genreNodeRepo = genreNodeRepo;
         this.tagNodeRepo = tagNodeRepo;
         this.companyNodeRepo = companyNodeRepo;
         this.personNodeRepo = personNodeRepo;
+        this.reviewNodeRepo = reviewNodeRepo;
+        this.commentNodeRepo = commentNodeRepo;
         this.neo4jClient = neo4jClient;
     }
 
@@ -169,6 +177,33 @@ public class MigrationSqlToNeoService {
                         .biography(p.getBio())
                         .birthDate(p.getBirthDate())
                         .build())
+        );
+    }
+
+    @Transactional("neo4jTransactionManager")
+    public void migrateReviewNodes() {
+        reviewSqlRepo.findAll().forEach(r ->
+                reviewNodeRepo.save(
+                        ReviewNode.builder()
+                                .rating(r.getRating())
+                                .sqlId(r.getId())
+                                .reviewText(r.getReviewText())
+                                .createdAt(r.getCreatedAt())
+                                .build()
+                )
+        );
+    }
+
+    @Transactional("neo4jTransactionManager")
+    public void migrateCommentNodes() {
+        commentSqlRepo.findAll().forEach(c ->
+                commentNodeRepo.save(
+                        CommentNode.builder()
+                                .text(c.getCommentText())
+                                .sqlId(c.getId())
+                                .createdAt(c.getCreatedAt())
+                                .build()
+                )
         );
     }
 
@@ -284,6 +319,54 @@ public class MigrationSqlToNeoService {
                 .bind(rows).to("rows")
                 .run();
     }
+
+    @Transactional("neo4jTransactionManager")
+    public void migrateReviewRelations() {
+
+        List<Map<String, Object>> rows = reviewSqlRepo.findAll().stream()
+                .map(r -> Map.<String,Object>of(
+                        "rid", r.getId(),                       // Review sqlId
+                        "uid", r.getUserEntity().getId(),       // User sqlId
+                        "mid", r.getMovieEntity().getTmdbId()   // Movie tmdbId
+                ))
+                .toList();
+
+        neo4jClient.query("""
+        UNWIND $rows AS r
+        MATCH (rev:Review {sqlId: r.rid})
+        MATCH (u:User {sqlId: r.uid})
+        MATCH (m:Movie {tmdbId: r.mid})
+        MERGE (u)-[:WROTE_REVIEW]->(rev)
+        MERGE (rev)-[:FOR]->(m)
+    """)
+                .bind(rows).to("rows")
+                .run();
+    }
+
+    @Transactional("neo4jTransactionManager")
+    public void migrateCommentRelations() {
+
+        List<Map<String, Object>> rows = commentSqlRepo.findAll().stream()
+                .map(c -> Map.<String,Object>of(
+                        "cid", c.getId(),                      // Comment sqlId
+                        "uid", c.getUserEntity().getId(),      // User sqlId
+                        "rid", c.getReviewEntity().getId()     // Review sqlId
+                ))
+                .toList();
+
+        neo4jClient.query("""
+        UNWIND $rows AS r
+        MATCH (c:Comment {sqlId: r.cid})
+        MATCH (u:User {sqlId: r.uid})
+        MATCH (rev:Review {sqlId: r.rid})
+        MERGE (u)-[:WROTE_COMMENT]->(c)
+        MERGE (c)-[:ON]->(rev)
+    """)
+                .bind(rows).to("rows")
+                .run();
+    }
+
+
 
 
 
