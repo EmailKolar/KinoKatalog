@@ -6,32 +6,35 @@ import ErrorPage from "./pages/ErrorPage";
 import MovieDetailPage from "./pages/MovieDetailPage";
 import AdminPage from "./pages/AdminPage";
 import UserDetailPage from "./pages/UserDetailPage";
+import { RequireAdmin, RequireOwnerOnly } from "./components/RouteGuards";
 
-const router = createBrowserRouter([{
+const router = createBrowserRouter([
+  {
     path: "/",
     element: <Layout />,
     errorElement: <ErrorPage />,
     children: [
-        {
-            path: "/",
-            element: <HomePage />,
-        },
-        {
-            path: "/games/:id",
-            element: <GameDetailPage />,
-        },
-        {
-            path: "/movies/:id",
-            element: <MovieDetailPage />,
-        },
-        {
+      { path: "/", element: <HomePage /> },
+      { path: "/games/:id", element: <GameDetailPage /> },
+      { path: "/movies/:id", element: <MovieDetailPage /> },
+      {
         path: "/admin",
-        element: <AdminPage />,
+        element: (
+          <RequireAdmin>
+            <AdminPage />
+          </RequireAdmin>
+        ),
       },
-      { path: "/users/:id",
-        element: <UserDetailPage />
-    },
+      {
+        path: "/users/:id",
+        element: (
+          <RequireOwnerOnly>
+            <UserDetailPage />
+          </RequireOwnerOnly>
+        ),
+      },
     ],
-}]);
+  },
+]);
 
 export default router;

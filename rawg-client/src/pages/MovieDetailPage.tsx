@@ -6,6 +6,7 @@ import ExpandableText from "../components/ExpandableText";
 import MovieAttributes from "../domain/movie/MovieAttributes";
 import ReviewList from "../domain/review/ReviewList";
 import ReviewForm from "../domain/review/ReviewForm";
+import { useAuth } from "../services/auth";
 import React from "react";
 
 const MovieDetailPage = () => {
@@ -16,6 +17,8 @@ const MovieDetailPage = () => {
     error: reviewsError,
     isLoading: reviewsLoading,
   } = useMovieReviews(id);
+
+  const auth = useAuth();
 
   if (isLoading) return <Spinner />;
   if (error || !movie) throw error;
@@ -46,7 +49,11 @@ const MovieDetailPage = () => {
         <Heading size="sm" mb={3}>
           Add a review
         </Heading>
-        <ReviewForm movieId={id ?? ""} />
+        {auth.isAuthenticated ? (
+          <ReviewForm movieId={id ?? ""} />
+        ) : (
+          <Box color="gray.500">You must be logged in to leave a review.</Box>
+        )}
       </Box>
     </>
   );
