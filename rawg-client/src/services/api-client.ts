@@ -22,6 +22,9 @@ class ApiClient<T> {
 
   post = (payload: any, config?: AxiosRequestConfig) =>
     axiosInstance.post<T>(this.endpoint, payload, config).then(res => res.data);
+
+  delete = (id: number | string, config?: AxiosRequestConfig) =>
+    axiosInstance.delete<T>(`${this.endpoint}/${id}`, config).then((res) => res.data);
 };
 
 
