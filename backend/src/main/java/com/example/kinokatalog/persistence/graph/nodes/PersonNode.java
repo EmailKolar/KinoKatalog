@@ -34,14 +34,8 @@ public class PersonNode {
     private String biography;
     private LocalDate birthDate;
 
-
-
-
     @Relationship(type = "ACTED_IN", direction = OUTGOING)
     private List<ActedInRelation> actedIn = new ArrayList<>();
-
-
-
 
     @Relationship(type = "CREW_MEMBER", direction = OUTGOING)
     private List<CrewMemberRelation> crewJobs = new ArrayList<>();
