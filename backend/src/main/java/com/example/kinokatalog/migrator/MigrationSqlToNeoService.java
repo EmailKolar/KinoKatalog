@@ -1,15 +1,13 @@
 package com.example.kinokatalog.migrator;
 
 
+import com.example.kinokatalog.persistence.graph.nodes.CompanyNode;
 import com.example.kinokatalog.persistence.graph.nodes.GenreNode;
 import com.example.kinokatalog.persistence.graph.nodes.MovieNode;
 import com.example.kinokatalog.persistence.graph.nodes.TagNode;
 import com.example.kinokatalog.persistence.graph.repository.*;
-import com.example.kinokatalog.persistence.sql.entity.GenreEntity;
-import com.example.kinokatalog.persistence.sql.entity.MovieGenreEntity;
+import com.example.kinokatalog.persistence.sql.entity.*;
 
-import com.example.kinokatalog.persistence.sql.entity.MovieGenreEntity;
-import com.example.kinokatalog.persistence.sql.entity.TagEntity;
 import com.example.kinokatalog.persistence.sql.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -43,9 +40,11 @@ public class MigrationSqlToNeoService {
     public final TagNodeRepository tagNodeRepo;
     public final DemoNodeRepository demoNodeRepo;
     public final MovieGenreSqlRepository movieGenreSqlRepo;
+    public final CompanyMovieSqlRepository companyMovieSqlRepository;
+    public final MovieTagSqlRepository movieTagSqlRepo;
 
     @Autowired
-    public MigrationSqlToNeoService(GenreNodeRepository genreNodeRepo, DemoNodeRepository demoNodeRepo, MovieSqlRepository movieSqlRepo, PersonSqlRepository personSqlRepo, CompanySqlRepository companySqlRepo, ReviewSqlRepository reviewSqlRepo, UserSqlRepository userSqlRepo, CollectionSqlRepository collectionSqlRepo, CollectionMovieSqlRepository collectionMovieSqlRepo, WatchlistSqlRepository watchlistSqlRepo, GenreSqlRepository genreSqlRepo, TagSqlRepository tagSqlRepo, MovieNodeRepository movieNodeRepo, PersonNodeRepository personNodeRepo, CompanyNodeRepository companyNodeRepo, ReviewNodeRepository reviewNodeRepo, CommentNodeRepository commentNodeRepo, UserNodeRepository userNodeRepo, CollectionNodeRepository collectionNodeRepo, TagNodeRepository tagNodeRepo, MovieGenreSqlRepository movieGenreSqlRepo) {
+    public MigrationSqlToNeoService(GenreNodeRepository genreNodeRepo, DemoNodeRepository demoNodeRepo, MovieSqlRepository movieSqlRepo, PersonSqlRepository personSqlRepo, CompanySqlRepository companySqlRepo, ReviewSqlRepository reviewSqlRepo, UserSqlRepository userSqlRepo, CollectionSqlRepository collectionSqlRepo, CollectionMovieSqlRepository collectionMovieSqlRepo, WatchlistSqlRepository watchlistSqlRepo, GenreSqlRepository genreSqlRepo, TagSqlRepository tagSqlRepo, MovieNodeRepository movieNodeRepo, PersonNodeRepository personNodeRepo, CompanyNodeRepository companyNodeRepo, ReviewNodeRepository reviewNodeRepo, CommentNodeRepository commentNodeRepo, UserNodeRepository userNodeRepo, CollectionNodeRepository collectionNodeRepo, TagNodeRepository tagNodeRepo, MovieGenreSqlRepository movieGenreSqlRepo, CompanyMovieSqlRepository companyMovieSqlRepository, MovieTagSqlRepository movieTagSqlRepo) {
         this.movieSqlRepo = movieSqlRepo;
         this.personSqlRepo = personSqlRepo;
         this.companySqlRepo = companySqlRepo;
@@ -67,6 +66,8 @@ public class MigrationSqlToNeoService {
         this.tagNodeRepo = tagNodeRepo;
         this.demoNodeRepo = demoNodeRepo;
         this.movieGenreSqlRepo = movieGenreSqlRepo;
+        this.companyMovieSqlRepository = companyMovieSqlRepository;
+        this.movieTagSqlRepo = movieTagSqlRepo;
     }
 
     public void migrate() {
@@ -74,13 +75,33 @@ public class MigrationSqlToNeoService {
         List<MovieNode> movieNodeList = getMovies();
         saveMoviesToNeo(movieNodeList);
 
+        System.out.println("PRINT1");
+
         List<GenreEntity> genreEntities = getGenreEntities();
         migrateGenres(genreEntities);
 
-        List<TagEntity> tagEntities = getTagEntites();
+        System.out.println("PRINT2");
+
+
+        List<TagEntity> tagEntities = getTagEntities();
         migrateTags(tagEntities);
 
-        migrateMovieGenres();
+        System.out.println("PRINT3");
+
+
+        //migrateMovieGenres();
+
+        migrateCompanies(getCompanyEntities());
+
+        System.out.println("PRINT4");
+
+
+       // migrateMoviesCompanies();
+
+        migrateMovieRelations();
+
+        System.out.println("PRINT5");
+
 
         /*migratePersons();
         migrateCompanies();
@@ -112,8 +133,9 @@ public class MigrationSqlToNeoService {
             movie.setReviewCount(m.getReviewCount());
             movie.setPosterPath(m.getPosterUrl());
             movie.setCreatedAt(m.getCreatedAt());
-            movie.setTags(null);
+            //movie.setTags(null);
             movie.setGenres(null);
+            movie.setCompanies(null);
             movieNodes.add(movie);
         });
         return movieNodes;
@@ -141,7 +163,7 @@ public class MigrationSqlToNeoService {
     }
 
     @Transactional
-    private List<TagEntity> getTagEntites(){
+    private List<TagEntity> getTagEntities(){
         return tagSqlRepo.findAll();
     }
 
@@ -163,10 +185,16 @@ public class MigrationSqlToNeoService {
     private List<MovieGenreEntity> getMovieGenres(){
         return movieGenreSqlRepo.findAll();
     }
+    @Transactional
+    private List<MovieTagEntity> getMovieTags(){
+        return movieTagSqlRepo.findAll();
+    }
+
+
 
     @Transactional("neo4jTransactionManager")
-    private MovieNode getMovieNodeByTmdbId(MovieGenreEntity movieGenreEntity) {
-        return movieNodeRepo.findNodeOnlyByTmdbId(movieGenreEntity.getMovie().getTmdbId());
+    private MovieNode getMovieNodeByTmdbId(Integer tmdbId) {
+        return movieNodeRepo.findNodeOnlyByTmdbId(tmdbId);
 
     }
     @Transactional("neo4jTransactionManager")
@@ -177,11 +205,71 @@ public class MigrationSqlToNeoService {
     @Transactional("neo4jTransactionManager")
     public void migrateMovieGenres() {
         getMovieGenres().forEach(rel -> {
-            MovieNode movie = getMovieNodeByTmdbId(rel);
+            MovieNode movie = getMovieNodeByTmdbId(rel.getMovie().getTmdbId());
             GenreNode genre = getGenreNodeByTmdbId(rel);
             movie.getGenres().add(genre);
+            genre.getMovies().add(movie);
+            movieNodeRepo.save(movie);
+            genreNodeRepo.save(genre);
+        });
+    }
+
+    @Transactional("neo4jTransactionManager")
+    public void migrateMovieTags() {
+        getMovieTags().forEach(rel->{
+            MovieNode movie = getMovieNodeByTmdbId(rel.getMovie().getTmdbId());
+            TagNode tag = tagNodeRepo.findByTmdbId(rel.getTag().getId());
+
+            movie.getTags().add(tag);
+            tag.getMovies().add(movie);
+
+            tagNodeRepo.save(tag);
             movieNodeRepo.save(movie);
         });
+    }
+
+    @Transactional("neo4jTransactionManager")
+    public void migrateMovieRelations(){
+        migrateMovieGenres();
+        migrateMovieTags();
+        migrateMoviesCompanies();
+    }
+
+
+    @Transactional
+    public List<CompanyEntity> getCompanyEntities(){
+        return companySqlRepo.findAll();
+    }
+
+
+    @Transactional("neo4jTransactionManager")
+    public void migrateCompanies(List<CompanyEntity> companyEntities){
+        for (var c: companyEntities){
+            CompanyNode cn = CompanyNode.builder()
+                    .name(c.getName())
+                    .originCountry(c.getOriginCountry())
+                    .sqlId(c.getId())
+                    .movies(null)
+                    .build();
+            companyNodeRepo.save(cn);
+        }
+    }
+
+    @Transactional("neo4jTransactionManager")
+    public void migrateMoviesCompanies(){
+        List<CompanyMovieEntity> companyMovieEntities = companyMovieSqlRepository.findAll();
+
+        for(var cme: companyMovieEntities){
+            MovieNode movie = getMovieNodeByTmdbId(cme.getMovieEntity().getTmdbId());
+            movie.getCompanies().add(companyNodeRepo.findBySqlId(cme.getCompanyEntity().getId()));
+
+            movieNodeRepo.save(movie);
+
+            CompanyNode companyNode = companyNodeRepo.findBySqlId(cme.getCompanyEntity().getId());
+            companyNode.getMovies().add(movie);
+
+            companyNodeRepo.save(companyNode);
+        }
     }
 
 

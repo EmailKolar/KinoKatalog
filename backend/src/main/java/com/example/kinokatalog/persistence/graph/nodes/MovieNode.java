@@ -54,12 +54,15 @@ public class MovieNode {
     @Relationship(type = "HAS_GENRE", direction = Relationship.Direction.OUTGOING)
     private List<GenreNode> genres = new ArrayList<>();
 
+
     @Relationship(type = "HAS_TAG", direction = Relationship.Direction.OUTGOING)
     private List<TagNode> tags = new ArrayList<>();
-/*
+
+
     @Relationship(type = "PRODUCED_BY", direction = Relationship.Direction.OUTGOING)
     private List<CompanyNode> companies = new ArrayList<>();
 
+    /*
     @Relationship(type = "CONTAINS_MOVIE", direction = INCOMING)
     private CollectionNode collection;
 
@@ -75,5 +78,5 @@ public class MovieNode {
     @Relationship(type = "HAS_IN_WATCHLIST", direction = INCOMING)
     private List<UserNode> watchlistedBy; // NO RELATION CLASS HERE
 
-    */
+*/
 }

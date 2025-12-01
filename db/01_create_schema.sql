@@ -154,9 +154,9 @@ CREATE TABLE collection_movies (
 );
 
 CREATE TABLE movie_tags (
+  id INT AUTO_INCREMENT PRIMARY KEY,
   movie_id INT,
   tag_id INT,
-  PRIMARY KEY (movie_id, tag_id),
   FOREIGN KEY (movie_id) REFERENCES movies(id),
   FOREIGN KEY (tag_id) REFERENCES tags(id)
 );

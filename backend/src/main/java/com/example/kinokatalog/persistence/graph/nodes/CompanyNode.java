@@ -9,6 +9,8 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
+import java.util.List;
+
 @Builder
 @AllArgsConstructor
 @Data
@@ -23,7 +25,8 @@ public class CompanyNode {
 
     private String name;
     private String originCountry;
+    private Integer sqlId;
 
     @Relationship(type = "PRODUCED_BY", direction = Relationship.Direction.INCOMING)
-    private MovieNode movie;
+    private List<MovieNode> movies;
 }
