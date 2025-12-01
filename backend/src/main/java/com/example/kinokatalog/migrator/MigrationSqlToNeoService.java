@@ -10,11 +10,14 @@ import com.example.kinokatalog.persistence.sql.entity.*;
 
 import com.example.kinokatalog.persistence.sql.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -42,6 +45,11 @@ public class MigrationSqlToNeoService {
     public final MovieGenreSqlRepository movieGenreSqlRepo;
     public final CompanyMovieSqlRepository companyMovieSqlRepository;
     public final MovieTagSqlRepository movieTagSqlRepo;
+
+
+    @Autowired
+    private Neo4jClient neo4jClient;
+
 
     @Autowired
     public MigrationSqlToNeoService(GenreNodeRepository genreNodeRepo, DemoNodeRepository demoNodeRepo, MovieSqlRepository movieSqlRepo, PersonSqlRepository personSqlRepo, CompanySqlRepository companySqlRepo, ReviewSqlRepository reviewSqlRepo, UserSqlRepository userSqlRepo, CollectionSqlRepository collectionSqlRepo, CollectionMovieSqlRepository collectionMovieSqlRepo, WatchlistSqlRepository watchlistSqlRepo, GenreSqlRepository genreSqlRepo, TagSqlRepository tagSqlRepo, MovieNodeRepository movieNodeRepo, PersonNodeRepository personNodeRepo, CompanyNodeRepository companyNodeRepo, ReviewNodeRepository reviewNodeRepo, CommentNodeRepository commentNodeRepo, UserNodeRepository userNodeRepo, CollectionNodeRepository collectionNodeRepo, TagNodeRepository tagNodeRepo, MovieGenreSqlRepository movieGenreSqlRepo, CompanyMovieSqlRepository companyMovieSqlRepository, MovieTagSqlRepository movieTagSqlRepo) {
@@ -133,9 +141,9 @@ public class MigrationSqlToNeoService {
             movie.setReviewCount(m.getReviewCount());
             movie.setPosterPath(m.getPosterUrl());
             movie.setCreatedAt(m.getCreatedAt());
-            //movie.setTags(null);
-            movie.setGenres(null);
-            movie.setCompanies(null);
+            movie.setTags(new ArrayList<>());
+            movie.setGenres(new ArrayList<>());
+            movie.setCompanies(new ArrayList<>());
             movieNodes.add(movie);
         });
         return movieNodes;
@@ -203,7 +211,7 @@ public class MigrationSqlToNeoService {
     }
 
     @Transactional("neo4jTransactionManager")
-    public void migrateMovieGenres() {
+    public void migrateMovieGenresRepo() {
         getMovieGenres().forEach(rel -> {
             MovieNode movie = getMovieNodeByTmdbId(rel.getMovie().getTmdbId());
             GenreNode genre = getGenreNodeByTmdbId(rel);
@@ -215,7 +223,7 @@ public class MigrationSqlToNeoService {
     }
 
     @Transactional("neo4jTransactionManager")
-    public void migrateMovieTags() {
+    public void migrateMovieTagsRepo() {
         getMovieTags().forEach(rel->{
             MovieNode movie = getMovieNodeByTmdbId(rel.getMovie().getTmdbId());
             TagNode tag = tagNodeRepo.findByTmdbId(rel.getTag().getId());
@@ -232,7 +240,7 @@ public class MigrationSqlToNeoService {
     public void migrateMovieRelations(){
         migrateMovieGenres();
         migrateMovieTags();
-        migrateMoviesCompanies();
+        migrateMovieCompanies();
     }
 
 
@@ -249,14 +257,14 @@ public class MigrationSqlToNeoService {
                     .name(c.getName())
                     .originCountry(c.getOriginCountry())
                     .sqlId(c.getId())
-                    .movies(null)
+                    //.movies(null)
                     .build();
             companyNodeRepo.save(cn);
         }
     }
 
     @Transactional("neo4jTransactionManager")
-    public void migrateMoviesCompanies(){
+    public void migrateMoviesCompaniesRepo(){
         List<CompanyMovieEntity> companyMovieEntities = companyMovieSqlRepository.findAll();
 
         for(var cme: companyMovieEntities){
@@ -271,6 +279,74 @@ public class MigrationSqlToNeoService {
             companyNodeRepo.save(companyNode);
         }
     }
+
+
+    @Transactional("neo4jTransactionManager")
+    public void migrateMovieGenres() {
+
+        List<Map<String, Object>> rels = movieGenreSqlRepo.findAll().stream()
+                .map(rel -> {
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("mid", rel.getMovie().getTmdbId());
+                    m.put("gid", rel.getGenre().getId());
+                    return m;
+                })
+                .toList();
+
+        neo4jClient.query("""
+        UNWIND $rels AS r
+        MATCH (m:Movie {tmdbId: r.mid})
+        MATCH (g:Genre {tmdbId: r.gid})
+        MERGE (m)-[:HAS_GENRE]->(g)
+    """)
+                .bind(rels).to("rels")
+                .run();
+    }
+
+
+    @Transactional("neo4jTransactionManager")
+    public void migrateMovieTags() {
+
+        List<Map<String, Object>> rels = movieTagSqlRepo.findAll().stream()
+                .map(rel -> {
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("mid", rel.getMovie().getTmdbId());
+                    m.put("tid", rel.getTag().getId());
+                    return m;
+                })
+                .toList();
+
+        neo4jClient.query("""
+        UNWIND $rels AS r
+        MATCH (m:Movie {tmdbId: r.mid})
+        MATCH (t:Tag {tmdbId: r.tid})
+        MERGE (m)-[:HAS_TAG]->(t)
+    """)
+                .bind(rels).to("rels")
+                .run();
+    }
+    @Transactional("neo4jTransactionManager")
+    public void migrateMovieCompanies() {
+
+        List<Map<String, Object>> rels = companyMovieSqlRepository.findAll().stream()
+                .map(rel -> {
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("mid", rel.getMovieEntity().getTmdbId());
+                    m.put("cid", rel.getCompanyEntity().getId());
+                    return m;
+                })
+                .toList();
+
+        neo4jClient.query("""
+        UNWIND $rels AS r
+        MATCH (m:Movie {tmdbId: r.mid})
+        MATCH (c:Company {sqlId: r.cid})
+        MERGE (m)-[:PRODUCED_BY]->(c)
+    """)
+                .bind(rels).to("rels")
+                .run();
+    }
+
 
 
 
