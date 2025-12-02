@@ -45,6 +45,8 @@ INSERT INTO users (id, username, email, password_hash, is_verified, role) VALUES
 INSERT INTO users (id, username, email, password_hash, is_verified, role) VALUES (8, 'user8', 'user8@example.com', '$2a$10$FakeHashedPassword', TRUE, 'USER');
 INSERT INTO users (id, username, email, password_hash, is_verified, role) VALUES (9, 'user9', 'user9@example.com', '$2a$10$FakeHashedPassword', TRUE, 'USER');
 INSERT INTO users (id, username, email, password_hash, is_verified, role) VALUES (10, 'user10', 'user10@example.com', '$2a$10$FakeHashedPassword', TRUE, 'USER');
+INSERT INTO users (id, username, email, password_hash, is_verified, role) VALUES (11, 'admin', 'admin@example.com', '$2a$12$i/KoJv9nEaBZuTUEefKWmOzUr4.qce6xO8Oh.9Tzq.967U8166h.O', TRUE, 'ADMIN');
+INSERT INTO users (id, username, email, password_hash, is_verified, role) VALUES (12, 'user', 'user@example.com', '$2a$12$GiTUjaVli4bCnFh6FMw9c.ipWGL10MyjVOaCTu.LYNBBkaOexyafe', TRUE, 'USER');
 INSERT INTO companies (id, name, origin_country) VALUES (420, "Marvel Studios", "US") ON DUPLICATE KEY UPDATE name=VALUES(name);
 INSERT INTO companies (id, name, origin_country) VALUES (176762, "Kevin Feige Productions", "US") ON DUPLICATE KEY UPDATE name=VALUES(name);
 INSERT INTO companies (id, name, origin_country) VALUES (126602, "See Át Film", "KR") ON DUPLICATE KEY UPDATE name=VALUES(name);
@@ -2019,4 +2021,15 @@ INSERT INTO watchlists (id, user_id, movie_id, added_at) VALUES (18, 9, 1337395,
 INSERT INTO watchlists (id, user_id, movie_id, added_at) VALUES (19, 10, 1447287, NOW());
 INSERT INTO watchlists (id, user_id, movie_id, added_at) VALUES (20, 10, 1078605, NOW());
 INSERT INTO tags (id, name) VALUES (1, "Marxist");
+INSERT INTO tags (id, name) VALUES (2, "LGBTQ+");
+INSERT INTO tags (id, name) VALUES (3, "Film Noir");
+INSERT INTO tags (id, name) VALUES (4, "Cult Classic");
+INSERT INTO tags (id, name) VALUES (5, "Silent Film");
 INSERT INTO movie_tags (movie_id, tag_id) VALUES (617126, 1);
+INSERT INTO movie_tags (movie_id, tag_id) VALUES (1311031, 2);
+INSERT INTO movie_tags (movie_id, tag_id) VALUES (1328803, 3);
+INSERT INTO movie_tags (movie_id, tag_id) VALUES (755898, 4);
+INSERT INTO movie_tags (movie_id, tag_id) VALUES (1009640, 1);
+INSERT INTO movie_tags (movie_id, tag_id) VALUES (1038392, 2);
+INSERT INTO movie_tags (movie_id, tag_id) VALUES (1450529, 3);
+
