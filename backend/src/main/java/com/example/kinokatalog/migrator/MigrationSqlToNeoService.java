@@ -30,8 +30,11 @@ public class MigrationSqlToNeoService {
     private final MovieCastSqlRepository movieCastSqlRepo;
     private final MovieCrewSqlRepository movieCrewSqlRepo;
     private final PersonSqlRepository personSqlRepo;
+    private final UserSqlRepository userSqlRepo;
     private final ReviewSqlRepository reviewSqlRepo;
     private final CommentSqlRepository commentSqlRepo;
+    private final CollectionSqlRepository collectionSqlRepo;
+    private final CollectionMovieSqlRepository collectionMovieSqlRepo;
 
 
     // Neo4j repositories
@@ -40,8 +43,11 @@ public class MigrationSqlToNeoService {
     private final TagNodeRepository tagNodeRepo;
     private final CompanyNodeRepository companyNodeRepo;
     private final PersonNodeRepository personNodeRepo;
+    private final UserNodeRepository userNodeRepo;
     private final ReviewNodeRepository reviewNodeRepo;
     private final CommentNodeRepository commentNodeRepo;
+    private final CollectionNodeRepository collectionNodeRepo;
+    private final WatchlistSqlRepository watchlistSqlRepo;
 
     private final Neo4jClient neo4jClient;
 
@@ -54,11 +60,11 @@ public class MigrationSqlToNeoService {
             CompanySqlRepository companySqlRepo,
             MovieGenreSqlRepository movieGenreSqlRepo,
             MovieTagSqlRepository movieTagSqlRepo,
-            CompanyMovieSqlRepository companyMovieSqlRepo, MovieCastSqlRepository movieCastSqlRepo, MovieCrewSqlRepository movieCrewSqlRepo, PersonSqlRepository personSqlRepo, ReviewSqlRepository reviewSqlRepo, CommentSqlRepository commentSqlRepo,
+            CompanyMovieSqlRepository companyMovieSqlRepo, MovieCastSqlRepository movieCastSqlRepo, MovieCrewSqlRepository movieCrewSqlRepo, PersonSqlRepository personSqlRepo, UserSqlRepository userSqlRepo, ReviewSqlRepository reviewSqlRepo, CommentSqlRepository commentSqlRepo, CollectionSqlRepository collectionSqlRepo, CollectionMovieSqlRepository collectionMovieSqlRepo,
             MovieNodeRepository movieNodeRepo,
             GenreNodeRepository genreNodeRepo,
             TagNodeRepository tagNodeRepo,
-            CompanyNodeRepository companyNodeRepo, PersonNodeRepository personNodeRepo, ReviewNodeRepository reviewNodeRepo, CommentNodeRepository commentNodeRepo,
+            CompanyNodeRepository companyNodeRepo, PersonNodeRepository personNodeRepo, UserNodeRepository userNodeRepo, ReviewNodeRepository reviewNodeRepo, CommentNodeRepository commentNodeRepo, CollectionNodeRepository collectionNodeRepo, WatchlistSqlRepository watchlistSqlRepo,
             Neo4jClient neo4jClient
     ) {
         this.movieSqlRepo = movieSqlRepo;
@@ -71,15 +77,21 @@ public class MigrationSqlToNeoService {
         this.movieCastSqlRepo = movieCastSqlRepo;
         this.movieCrewSqlRepo = movieCrewSqlRepo;
         this.personSqlRepo = personSqlRepo;
+        this.userSqlRepo = userSqlRepo;
         this.reviewSqlRepo = reviewSqlRepo;
         this.commentSqlRepo = commentSqlRepo;
+        this.collectionSqlRepo = collectionSqlRepo;
+        this.collectionMovieSqlRepo = collectionMovieSqlRepo;
         this.movieNodeRepo = movieNodeRepo;
         this.genreNodeRepo = genreNodeRepo;
         this.tagNodeRepo = tagNodeRepo;
         this.companyNodeRepo = companyNodeRepo;
         this.personNodeRepo = personNodeRepo;
+        this.userNodeRepo = userNodeRepo;
         this.reviewNodeRepo = reviewNodeRepo;
         this.commentNodeRepo = commentNodeRepo;
+        this.collectionNodeRepo = collectionNodeRepo;
+        this.watchlistSqlRepo = watchlistSqlRepo;
         this.neo4jClient = neo4jClient;
     }
 
@@ -89,12 +101,15 @@ public class MigrationSqlToNeoService {
     // ---------------------------------------------------------------------
     public void migrate() {
 
+        // 1. Base movie people + metadata
         migrateMovies();
         migrateGenres();
         migrateTags();
         migrateCompanies();
+        migrateUsers();
         migratePersons();
 
+        // 2. Relationship migrations for movies
         migrateMovieGenres();
         migrateMovieTags();
         migrateMovieCompanies();
@@ -102,8 +117,23 @@ public class MigrationSqlToNeoService {
         migrateMovieCrew();
 
 
+        migrateReviewNodes();
+        migrateCommentNodes();
+
+        migrateCollectionNodes();
+
+
+        migrateReviewRelations();
+        migrateCommentRelations();
+
+        migrateCollectionUserRelations();
+        migrateCollectionMovieRelations();
+        migrateWatchlistRelations();
+
+
         System.out.println("Migration completed");
     }
+
 
 
 
@@ -207,6 +237,39 @@ public class MigrationSqlToNeoService {
         );
     }
 
+    @Transactional("neo4jTransactionManager")
+    public void migrateUsers(){
+        userSqlRepo.findAll().forEach(u ->
+                userNodeRepo.save(
+                        UserNode.builder()
+                                .sqlId(u.getId())
+                                .username(u.getUsername())
+                                .email(u.getEmail())
+                                .passwordHash(u.getPasswordHash())
+                                .isVerified(u.getIsVerified())
+                                .createdAt(u.getCreatedAt())
+                                .build()
+                )
+        );    }
+
+    @Transactional("neo4jTransactionManager")
+    public void migrateCollectionNodes() {
+
+        List<CollectionNode> nodes = collectionSqlRepo.findAll().stream()
+                .map(c -> CollectionNode.builder()
+                        .sqlId(c.getId())
+                        .name(c.getName())
+                        .description(c.getDescription())
+                        .createdAt(c.getCreatedAt())
+                        .movies(new ArrayList<>())
+                        .build()
+                )
+                .toList();
+
+        collectionNodeRepo.saveAll(nodes);
+    }
+
+
 
     // ---------------------------------------------------------------------
     // RELATIONSHIP MIGRATIONS — USING NEO4J-CLIENT BULK UNWIND
@@ -214,7 +277,6 @@ public class MigrationSqlToNeoService {
 
     @Transactional("neo4jTransactionManager")
     public void migrateMovieGenres() {
-
         List<Map<String, Object>> rows = movieGenreSqlRepo.findAll().stream()
                 .map(rel -> Map.<String, Object>of(
                         "mid", rel.getMovie().getTmdbId(),
@@ -365,6 +427,77 @@ public class MigrationSqlToNeoService {
                 .bind(rows).to("rows")
                 .run();
     }
+
+    @Transactional("neo4jTransactionManager")
+    public void migrateCollectionUserRelations() {
+
+        List<Map<String, Object>> rows = collectionSqlRepo.findAll().stream()
+                .map(c -> Map.<String, Object>of(
+                        "cid", c.getId(),
+                        "uid", c.getUser().getId()
+                ))
+                .toList();
+
+        neo4jClient.query("""
+        UNWIND $rows AS r
+        MATCH (c:Collection {sqlId: r.cid})
+        MATCH (u:User {sqlId: r.uid})
+        MERGE (u)-[:CREATED_COLLECTION]->(c)
+    """)
+                .bind(rows).to("rows")
+                .run();
+    }
+
+    @Transactional("neo4jTransactionManager")
+    public void migrateCollectionMovieRelations() {
+
+        List<Map<String, Object>> rows = collectionMovieSqlRepo.findAll().stream()
+                .map(cm -> Map.<String, Object>of(
+                        "cid", cm.getCollection().getId(),
+                        "mid", cm.getMovie().getId(),
+                        "added", cm.getCreatedAt()
+                ))
+                .toList();
+
+        neo4jClient.query("""
+        UNWIND $rows AS r
+        MATCH (c:Collection {sqlId: r.cid})
+        MATCH (m:Movie {tmdbId: r.mid})
+        MERGE (c)-[rel:CONTAINS_MOVIE]->(m)
+        SET rel.addedAt = r.added
+    """)
+                .bind(rows).to("rows")
+                .run();
+    }
+    @Transactional("neo4jTransactionManager")
+    public void migrateWatchlistRelations() {
+
+        List<Map<String, Object>> rows = watchlistSqlRepo.findAll().stream()
+                .map(w -> Map.<String,Object>of(
+                        "uid", w.getUser().getId(),
+                        "mid", w.getMovie().getTmdbId(),
+                        "added", w.getAddedAt()
+                ))
+                .toList();
+
+        neo4jClient.query("""
+        UNWIND $rows AS r
+        MATCH (u:User {sqlId: r.uid})
+        MATCH (m:Movie {tmdbId: r.mid})
+        MERGE (u)-[rel:HAS_IN_WATCHLIST]->(m)
+        SET rel.addedAt = r.added
+    """)
+                .bind(rows).to("rows")
+                .run();
+    }
+
+
+
+
+
+
+
+
 
 
 

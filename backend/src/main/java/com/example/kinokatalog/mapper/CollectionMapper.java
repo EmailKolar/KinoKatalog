@@ -12,7 +12,7 @@ public class CollectionMapper {
     public CollectionDTO toDTO(CollectionEntity entity) {
         CollectionDTO dto = new CollectionDTO();
         dto.setId(entity.getId());
-        dto.setUserId(entity.getUserId());
+        dto.setUserId(entity.getUser().getId());
         dto.setName(entity.getName());
         dto.setDescription(entity.getDescription());
 
@@ -22,10 +22,10 @@ public class CollectionMapper {
         return dto;
     }
 
-    public CollectionEntity toEntity(CollectionDTO dto) {
+    public CollectionEntity toEntity(CollectionDTO dto) {//TODO FIX ME
         CollectionEntity entity = new CollectionEntity();
         entity.setId(dto.getId());
-        entity.setUserId(dto.getUserId());
+        //entity.setUserId(dto.getUserId());
         entity.setName(dto.getName());
         entity.setDescription(dto.getDescription());
         return entity;

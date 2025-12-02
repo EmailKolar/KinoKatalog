@@ -1,20 +1,12 @@
 package com.example.kinokatalog.persistence.sql.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-
 @Entity
 @Table(
         name = "collection_movies",
@@ -30,19 +22,22 @@ public class CollectionMovieEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "collection_id", nullable = false)
-    private Integer collectionId;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "collection_id", nullable = false)
+    private CollectionEntity collection;
 
-    @Column(name = "movie_id", nullable = false)
-    private Integer movieId;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "movie_id", nullable = false)
+    private MovieEntity movie;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @PrePersist
     public void prePersist() {
-        if (this.createdAt == null) {
-            this.createdAt = LocalDateTime.now();
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
         }
     }
 }
+

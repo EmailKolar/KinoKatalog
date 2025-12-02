@@ -27,12 +27,13 @@ public class UserNode {
     @GeneratedValue
     private Long id;
 
+    private Integer sqlId;
 
     private String username;
     private String email;
     private String passwordHash;
     private Boolean isVerified;
-    private String fullName;
+    //private String fullName;
     private LocalDateTime createdAt;
     private String role;
 

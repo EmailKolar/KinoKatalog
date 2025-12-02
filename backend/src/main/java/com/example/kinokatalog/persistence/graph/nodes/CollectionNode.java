@@ -23,6 +23,8 @@ public class CollectionNode {
     @GeneratedValue
     private Long id;
 
+    private Integer sqlId;
+
     private String name;
     private String description;
     private LocalDateTime createdAt;

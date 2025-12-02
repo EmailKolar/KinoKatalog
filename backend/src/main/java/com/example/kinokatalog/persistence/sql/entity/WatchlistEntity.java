@@ -9,31 +9,32 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @Table(name = "watchlists")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class WatchlistEntity {
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-
-    @Column(name = "added_at", updatable = false)
+    @Column(name = "added_at", updatable = false, nullable = false)
     private LocalDateTime addedAt;
 
     @PrePersist
     protected void onCreate() {
-        this.addedAt = LocalDateTime.now();
+        if (addedAt == null) {
+            addedAt = LocalDateTime.now();
+        }
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "movie_id", nullable = false)
     private MovieEntity movie;
 }
+

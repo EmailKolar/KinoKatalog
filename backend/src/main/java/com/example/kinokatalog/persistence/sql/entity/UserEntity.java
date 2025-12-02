@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "users")
 @Data
@@ -29,18 +28,18 @@ public class UserEntity {
 
     private Boolean isVerified = false;
 
-    @Column(columnDefinition = "ENUM('USER','ADMIN')")
+    @Column(nullable = false)
     private String role = "USER";
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
-/*
-    @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonBackReference
-    private List<CollectionEntity> collections;*/
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
     }
 }
+
+

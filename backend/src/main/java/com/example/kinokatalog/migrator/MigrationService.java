@@ -201,39 +201,35 @@ public class MigrationService {
 
         for (UserEntity u : users) {
 
-            //List<CollectionEntity> collectionEntities = collectionRepo.findByUserId(u.getId());
+            // collections belonging to this user
             List<CollectionEntity> collectionEntities = getCollectionsByUserId(u.getId());
-
 
             List<UserCollection> collectionDocs = collectionEntities.stream()
                     .map(c -> {
-                        // movies inside this collection
-                        //List<CollectionMovieEntity> movieEntities = collectionMovieRepo.findByCollectionId(c.getId());
+
+                        // movies inside this collection (new JPA mapping)
                         List<CollectionMovieEntity> movieEntities = getCollectionMoviesByCollectionId(c.getId());
 
+                        List<Integer> movieIds = movieEntities.stream()
+                                .map(cm -> cm.getMovie().getId())   // <-- FIXED: use relation
+                                .toList();
 
-                        List<CollectionMovieEntity> movies = movieEntities.stream()
-                                .map(cm -> CollectionMovieEntity.builder()
-                                        .movieId(cm.getMovieId())
-                                        .createdAt(cm.getCreatedAt())
-                                        .build()
-                                ).toList();
                         return UserCollection.builder()
                                 .name(c.getName())
                                 .description(c.getDescription())
                                 .createdAt(c.getCreatedAt())
-                                .movieIds(movies.stream()
-                                        .map(CollectionMovieEntity::getMovieId)
-                                        .toList())
+                                .movieIds(movieIds)
                                 .build();
-                    }).toList();
+                    })
+                    .toList();
 
-            //List<WatchlistEntity> watchlistEntities = watchlistSqlRepo.findByUserId(u.getId());
+            // watchlist for this user
             List<WatchlistEntity> watchlistEntities = getWatchlistsByUserId(u.getId());
+
             Watchlist watchlistDoc = Watchlist.builder()
                     .movieIds(
                             watchlistEntities.stream()
-                                    .map(w -> w.getMovie().getId()) // SQL integer IDs
+                                    .map(w -> w.getMovie().getId())   // <-- unchanged, already correct
                                     .toList()
                     )
                     .updatedAt(
@@ -244,22 +240,22 @@ public class MigrationService {
                     )
                     .build();
 
-
+            // create the MongoDB user document
             UserDocument doc = UserDocument.builder()
-                            .username(u.getUsername())
-                            .email(u.getEmail())
-                            .passwordHash(u.getPasswordHash())
-                            .isVerified(u.getIsVerified())
-                            .role(u.getRole())
-                            .createdAt(u.getCreatedAt())
-                            .collections(collectionDocs)
-                            .watchlist(watchlistDoc)
-                            .build();
+                    .username(u.getUsername())
+                    .email(u.getEmail())
+                    .passwordHash(u.getPasswordHash())
+                    .isVerified(u.getIsVerified())
+                    .role(u.getRole())
+                    .createdAt(u.getCreatedAt())
+                    .collections(collectionDocs)
+                    .watchlist(watchlistDoc)
+                    .build();
 
             userDocRepo.save(doc);
         }
-
     }
+
 
 }
 

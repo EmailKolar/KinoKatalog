@@ -3,7 +3,11 @@ package com.example.kinokatalog.service.impl;
 import com.example.kinokatalog.dto.CollectionDTO;
 import com.example.kinokatalog.mapper.CollectionMapper;
 
+import com.example.kinokatalog.persistence.sql.entity.MovieEntity;
+import com.example.kinokatalog.persistence.sql.entity.UserEntity;
 import com.example.kinokatalog.persistence.sql.repository.CollectionMovieSqlRepository;
+import com.example.kinokatalog.persistence.sql.repository.MovieSqlRepository;
+import com.example.kinokatalog.persistence.sql.repository.UserSqlRepository;
 import com.example.kinokatalog.service.CollectionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,7 +17,6 @@ import com.example.kinokatalog.persistence.sql.entity.CollectionMovieEntity;
 import com.example.kinokatalog.persistence.sql.repository.CollectionSqlRepository;
 
 import java.util.*;
-
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -21,6 +24,8 @@ public class CollectionServiceSqlImpl implements CollectionService {
 
     private final CollectionSqlRepository collectionRepo;
     private final CollectionMovieSqlRepository collectionMovieRepo;
+    private final MovieSqlRepository movieRepo;
+    private final UserSqlRepository userRepo;
     private final CollectionMapper mapper;
 
 
@@ -32,10 +37,10 @@ public class CollectionServiceSqlImpl implements CollectionService {
 
         CollectionDTO dto = mapper.toDTO(entity);
 
-        // now fill the movieIds
+        // updated for JPA relation model
         List<Integer> movieIds = collectionMovieRepo.findByCollectionId(id)
                 .stream()
-                .map(CollectionMovieEntity::getMovieId)
+                .map(cm -> cm.getMovie().getId())  // <-- FIXED HERE
                 .toList();
 
         dto.setMovieIds(movieIds);
@@ -47,13 +52,15 @@ public class CollectionServiceSqlImpl implements CollectionService {
     @Override
     public CollectionDTO createCollection(CollectionDTO dto) {
 
-        // optional but smart: enforce name uniqueness per user
         if (collectionRepo.existsByUserIdAndName(dto.getUserId(), dto.getName())) {
             throw new IllegalArgumentException("Collection with that name already exists for this user.");
         }
 
+        UserEntity user = userRepo.findById(dto.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         CollectionEntity entity = new CollectionEntity();
-        entity.setUserId(dto.getUserId());
+        entity.setUser(user);                 // <-- FIXED
         entity.setName(dto.getName());
         entity.setDescription(dto.getDescription());
 
@@ -70,16 +77,12 @@ public class CollectionServiceSqlImpl implements CollectionService {
         entity.setName(dto.getName());
         entity.setDescription(dto.getDescription());
 
-        CollectionEntity updated = collectionRepo.save(entity);
-        return mapper.toDTO(updated);
+        return mapper.toDTO(collectionRepo.save(entity));
     }
 
     @Override
     public void deleteCollection(Integer id) {
-        // delete join table entries
         collectionMovieRepo.deleteByCollectionId(id);
-
-        // delete collection row
         collectionRepo.deleteById(id);
     }
 
@@ -87,12 +90,18 @@ public class CollectionServiceSqlImpl implements CollectionService {
     public void addMovieToCollection(Integer collectionId, Integer movieId) {
 
         if (collectionMovieRepo.existsByCollectionIdAndMovieId(collectionId, movieId)) {
-            return; // no need to throw, silently ignore (like Letterboxd)
+            return;
         }
 
+        CollectionEntity collection = collectionRepo.findById(collectionId)
+                .orElseThrow(() -> new RuntimeException("Collection not found"));
+
+        MovieEntity movie = movieRepo.findById(movieId)
+                .orElseThrow(() -> new RuntimeException("Movie not found"));
+
         CollectionMovieEntity join = new CollectionMovieEntity();
-        join.setCollectionId(collectionId);
-        join.setMovieId(movieId);
+        join.setCollection(collection);   // <-- FIXED
+        join.setMovie(movie);            // <-- FIXED
 
         collectionMovieRepo.save(join);
     }
@@ -109,7 +118,4 @@ public class CollectionServiceSqlImpl implements CollectionService {
                 .map(mapper::toDTO)
                 .toList();
     }
-
-
-
 }
