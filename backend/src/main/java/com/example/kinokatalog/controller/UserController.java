@@ -1,7 +1,7 @@
-package com.example.KinoKatalog.controller;
+package com.example.kinokatalog.controller;
 
-import com.example.KinoKatalog.dto.UserDTO;
-import com.example.KinoKatalog.service.impl.UserServiceSqlImpl;
+import com.example.kinokatalog.dto.UserDTO;
+import com.example.kinokatalog.service.impl.UserServiceSqlImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
