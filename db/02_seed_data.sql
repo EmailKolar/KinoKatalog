@@ -2021,5 +2021,15 @@ INSERT INTO watchlists (id, user_id, movie_id, added_at) VALUES (18, 9, 1337395,
 INSERT INTO watchlists (id, user_id, movie_id, added_at) VALUES (19, 10, 1447287, NOW());
 INSERT INTO watchlists (id, user_id, movie_id, added_at) VALUES (20, 10, 1078605, NOW());
 INSERT INTO tags (id, name) VALUES (1, "Marxist");
+INSERT INTO tags (id, name) VALUES (2, "LGBTQ+");
+INSERT INTO tags (id, name) VALUES (3, "Film Noir");
+INSERT INTO tags (id, name) VALUES (4, "Cult Classic");
+INSERT INTO tags (id, name) VALUES (5, "Silent Film");
 INSERT INTO movie_tags (movie_id, tag_id) VALUES (617126, 1);
+INSERT INTO movie_tags (movie_id, tag_id) VALUES (1311031, 2);
+INSERT INTO movie_tags (movie_id, tag_id) VALUES (1328803, 3);
+INSERT INTO movie_tags (movie_id, tag_id) VALUES (755898, 4);
+INSERT INTO movie_tags (movie_id, tag_id) VALUES (1009640, 1);
+INSERT INTO movie_tags (movie_id, tag_id) VALUES (1038392, 2);
+INSERT INTO movie_tags (movie_id, tag_id) VALUES (1450529, 3);
 

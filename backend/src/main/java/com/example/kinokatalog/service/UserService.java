@@ -1,0 +1,8 @@
+package com.example.kinokatalog.service;
+
+import com.example.kinokatalog.persistence.sql.entity.UserEntity;
+
+public interface UserService {
+
+    UserEntity findUserById(Integer userId);
+}
