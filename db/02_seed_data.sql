@@ -45,6 +45,8 @@ INSERT INTO users (id, username, email, password_hash, is_verified, role) VALUES
 INSERT INTO users (id, username, email, password_hash, is_verified, role) VALUES (8, 'user8', 'user8@example.com', '$2a$10$FakeHashedPassword', TRUE, 'USER');
 INSERT INTO users (id, username, email, password_hash, is_verified, role) VALUES (9, 'user9', 'user9@example.com', '$2a$10$FakeHashedPassword', TRUE, 'USER');
 INSERT INTO users (id, username, email, password_hash, is_verified, role) VALUES (10, 'user10', 'user10@example.com', '$2a$10$FakeHashedPassword', TRUE, 'USER');
+INSERT INTO users (id, username, email, password_hash, is_verified, role) VALUES (11, 'admin', 'admin@example.com', '$2a$12$i/KoJv9nEaBZuTUEefKWmOzUr4.qce6xO8Oh.9Tzq.967U8166h.O', TRUE, 'ADMIN');
+INSERT INTO users (id, username, email, password_hash, is_verified, role) VALUES (12, 'user', 'user@example.com', '$2a$12$GiTUjaVli4bCnFh6FMw9c.ipWGL10MyjVOaCTu.LYNBBkaOexyafe', TRUE, 'USER');
 INSERT INTO companies (id, name, origin_country) VALUES (420, "Marvel Studios", "US") ON DUPLICATE KEY UPDATE name=VALUES(name);
 INSERT INTO companies (id, name, origin_country) VALUES (176762, "Kevin Feige Productions", "US") ON DUPLICATE KEY UPDATE name=VALUES(name);
 INSERT INTO companies (id, name, origin_country) VALUES (126602, "See Át Film", "KR") ON DUPLICATE KEY UPDATE name=VALUES(name);
@@ -2030,3 +2032,4 @@ INSERT INTO movie_tags (movie_id, tag_id) VALUES (755898, 4);
 INSERT INTO movie_tags (movie_id, tag_id) VALUES (1009640, 1);
 INSERT INTO movie_tags (movie_id, tag_id) VALUES (1038392, 2);
 INSERT INTO movie_tags (movie_id, tag_id) VALUES (1450529, 3);
+
