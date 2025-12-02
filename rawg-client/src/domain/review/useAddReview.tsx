@@ -1,28 +1,47 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import ApiClient from "../../services/api-client";
-import { Review, ReviewCreate } from "./Review";
-import useAuthStore from "../../state"; // adjust selector if your auth store has a different hook/name
+import useAuthStore from "../../state";
+import { axiosInstance } from "../../services/api-client";
+
+type Payload = {
+  rating: number;
+  reviewText: string;
+};
 
 const useAddReview = (movieId?: string | number) => {
   const qc = useQueryClient();
-  const currentUser = useAuthStore((s: any) => s.user); // expecting { username, ... } or null
+  const token = useAuthStore((s: any) => s.token);
 
-  return useMutation<Review, Error, ReviewCreate>({
-  mutationFn: (newReview) => {
-    if (!movieId) return Promise.reject(new Error("Missing movieId"));
-    if (typeof newReview.rating !== "number")
-      return Promise.reject(new Error("Rating is required"));
-    // changed to post to /reviews and include movie id in payload
-    const api = new ApiClient<Review>(`reviews`);
-    const payload = {
-      ...newReview,
-      movie: Number(movieId),
-      author: newReview.author ?? currentUser?.username ?? currentUser?.name,
-    };
-    return api.post(payload);
-  },
-  onSuccess: () => qc.invalidateQueries(["movieReviews", movieId]),
-});
+  return useMutation(
+    async (newReview: Payload) => {
+      if (!movieId) throw new Error("Missing movieId");
+      if (typeof newReview.rating !== "number") throw new Error("Rating is required");
+
+      const storedToken =
+        typeof token === "string"
+          ? token
+          : localStorage.getItem("kk_auth_token") ?? undefined;
+
+      if (!storedToken) {
+        throw new Error("Not authenticated. Please log in to add a review.");
+      }
+
+      const authHeader = storedToken.startsWith("Bearer ")
+        ? storedToken
+        : `Bearer ${storedToken}`;
+
+      // send Authorization per-request and call controller under /api/reviews
+      const response = await axiosInstance.post(
+        `/reviews/movie/${movieId}`,
+        newReview,
+        { headers: { Authorization: authHeader } }
+      );
+
+      return response.data;
+    },
+    {
+      onSuccess: () => qc.invalidateQueries(["movieReviews", String(movieId)]),
+    }
+  );
 };
 
 export default useAddReview;
