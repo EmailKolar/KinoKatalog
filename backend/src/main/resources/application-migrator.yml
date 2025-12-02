@@ -1,7 +1,14 @@
-spring.datasource.url=jdbc:mysql://localhost:3306/KinoKatalog
-spring.datasource.username=appuser
-spring.datasource.password=apppass
+#spring.datasource.url=jdbc:mysql://localhost:3306/kinokatalog
+#spring.datasource.username=appuser
+#spring.datasource.password=apppass
 
 spring.data.mongodb.uri=mongodb://localhost:27017/KinoKatalogDocument
 spring.data.mongodb.username=root
 spring.data.mongodb.password=rootpass
+  
+  # src/main/resources/application.properties
+#spring.neo4j.uri=bolt://neo4j:7687
+#spring.neo4j.authentication.username=neo4j
+#spring.neo4j.authentication.password=neo4jpass
+# or for single-instance URL-style:
+# spring.neo4j.url=bolt://localhost:7687
