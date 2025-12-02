@@ -1,4 +1,4 @@
-package com.example.KinoKatalog.config;
+package com.example.kinokatalog.config;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
