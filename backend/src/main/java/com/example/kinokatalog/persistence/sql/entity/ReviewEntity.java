@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
+import com.example.kinokatalog.persistence.sql.entity.MovieEntity;
 
 import java.time.LocalDateTime;
 

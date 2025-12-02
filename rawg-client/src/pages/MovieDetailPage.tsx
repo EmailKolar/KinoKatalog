@@ -8,6 +8,7 @@ import ReviewList from "../domain/review/ReviewList";
 import ReviewForm from "../domain/review/ReviewForm";
 import { useAuth } from "../services/auth";
 import React from "react";
+import type { Review } from "../domain/review/Review";
 
 const MovieDetailPage = () => {
   const { id } = useParams();
@@ -22,6 +23,21 @@ const MovieDetailPage = () => {
 
   if (isLoading) return <Spinner />;
   if (error || !movie) throw error;
+
+  // map backend DTO -> frontend Review shape
+  const mappedReviews: Review[] | undefined = reviews?.map((r: any) => ({
+    id: Number(r.id),
+    movie: r.movieId ?? r.movie ?? Number(id),
+    author: r.username ?? r.author ?? "Anonymous",
+    content: r.reviewText ?? r.content ?? "",
+    rating:
+      typeof r.rating === "number"
+        ? r.rating
+        : typeof r.rating === "string"
+        ? Number(r.rating)
+        : undefined,
+    createdAt: r.createdAt ?? r.createdAtString ?? new Date().toISOString(),
+  }));
 
   return (
     <>
@@ -41,7 +57,7 @@ const MovieDetailPage = () => {
         ) : reviewsError ? (
           <Box color="tomato">{reviewsError.message}</Box>
         ) : (
-          <ReviewList reviews={reviews} />
+          <ReviewList reviews={mappedReviews} />
         )}
       </Box>
 
