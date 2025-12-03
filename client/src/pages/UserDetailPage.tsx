@@ -59,7 +59,7 @@ const onFileChange: React.ChangeEventHandler<HTMLInputElement> = async (e) => {
   setPreviewUrl(URL.createObjectURL(f));
 
   try {
-    await changeProfile.upload(f); // 🚀 real upload
+    await changeProfile.upload(f); // real upload
     setPreviewUrl(null); // reset so Avatar uses backend URL
   } catch (err) {
     console.error(err);

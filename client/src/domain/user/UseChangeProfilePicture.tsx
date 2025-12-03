@@ -1,4 +1,7 @@
 import { useAuth } from "../../services/auth";
+import.meta.env;
+
+const url = import.meta.env.VITE_API_URL;
 
 export function useChangeProfilePicture() {
   const auth = useAuth();
@@ -9,7 +12,7 @@ export function useChangeProfilePicture() {
     const userId = auth.user.id;
 
     // Request presigned PUT URL - send metadata, server chooses objectKey
-    const presignRes = await fetch(`/api/users/${userId}/profile-image/presign`, {
+    const presignRes = await fetch(`${url}/users/${userId}/profile-image/presign`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },

@@ -9,6 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -91,4 +93,71 @@ public class UserController {
 
         return ResponseEntity.ok("Profile photo updated");
     }
+
+    // PRESIGN endpoint - client sends metadata, server returns uploadUrl + objectKey
+    @PostMapping("/{id}/profile-image/presign")
+    public ResponseEntity<?> presignProfileImage(
+            @PathVariable Integer id,
+            @RequestBody PresignRequest req,
+            Authentication authentication
+    ) throws Exception {
+        if (authentication == null) return ResponseEntity.status(401).build();
+
+        Object details = authentication.getDetails();
+        Integer principalId = (details instanceof Integer) ? (Integer) details : null;
+        if (principalId == null) {
+            // fallback resolve by username
+            try {
+                UserDTO me = userService.getUserByUsername(authentication.getName());
+                principalId = me.getId();
+            } catch (RuntimeException ex) {
+                return ResponseEntity.status(401).build();
+            }
+        }
+        if (!principalId.equals(id)) return ResponseEntity.status(403).build();
+
+        Map<String, String> res = profilePhotoService.presignUpload(id, req.filename, req.contentType, req.size);
+        return ResponseEntity.ok(res);
+    }
+
+    // CONFIRM endpoint - client asks server to validate and promote uploaded object
+    @PostMapping("/{id}/profile-image/confirm")
+    public ResponseEntity<?> confirmProfileImage(
+            @PathVariable Integer id,
+            @RequestBody Map<String, String> body,
+            Authentication authentication
+    ) throws Exception {
+        if (authentication == null) return ResponseEntity.status(401).build();
+
+        Object details = authentication.getDetails();
+        Integer principalId = (details instanceof Integer) ? (Integer) details : null;
+        if (principalId == null) {
+            try {
+                UserDTO me = userService.getUserByUsername(authentication.getName());
+                principalId = me.getId();
+            } catch (RuntimeException ex) {
+                return ResponseEntity.status(401).build();
+            }
+        }
+        if (!principalId.equals(id)) return ResponseEntity.status(403).build();
+
+        String objectKey = body.get("objectKey");
+        if (objectKey == null) return ResponseEntity.badRequest().body("objectKey required");
+
+        String finalKey = profilePhotoService.confirmAndPromote(id, objectKey);
+        userService.updateProfileImageKey(id, finalKey);
+
+        UserDTO dto = userService.getUserById(id);
+        return ResponseEntity.ok(dto);
+    }
+
+    // ...existing upload endpoint and others...
+
+    // DTO for presign request
+    public static class PresignRequest {
+        public String filename;
+        public String contentType;
+        public Long size;
+    }
+
 }
