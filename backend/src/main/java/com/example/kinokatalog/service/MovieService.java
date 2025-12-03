@@ -8,4 +8,5 @@ public interface MovieService {
     List<MovieDTO> getAllMovies();
     MovieDTO getMovieById(Integer id);
     MovieDTO createMovie(MovieDTO movieDTO);
+    void deleteMovieById(Integer id);
 }
