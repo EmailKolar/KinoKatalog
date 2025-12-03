@@ -40,4 +40,12 @@ public class MovieServiceSqlImpl implements MovieService {
         return MovieMapper.toDTO(saved);
     }
 
+    @Override
+    public void deleteMovieById(Integer id) {
+        if (!movieRepository.existsById(id)) {
+            throw new RuntimeException("Movie not found");
+        }
+        movieRepository.deleteById(id);
+    }
+
 }
