@@ -48,6 +48,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/movies/**").hasRole("ADMIN")
                         .requestMatchers("/api/movies/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+                        .requestMatchers("/api/users/**").hasRole("ADMIN")
+                        .requestMatchers("/api/users/**").hasRole("USER")
                         .anyRequest().authenticated()
                 );
 

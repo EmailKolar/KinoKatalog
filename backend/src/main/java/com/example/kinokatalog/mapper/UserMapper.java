@@ -6,10 +6,9 @@ import com.example.kinokatalog.persistence.sql.entity.UserEntity;
 
 public class UserMapper {
 
-    public static UserDTO toUserDTO(UserEntity userEntity) {
-        if (userEntity == null) {
-            return null;
-        }
+    public static UserDTO toUserDTO(UserEntity userEntity, String publicUrl) {
+        if (userEntity == null) return null;
+
         UserDTO dto = new UserDTO();
         dto.setId(userEntity.getId());
         dto.setUsername(userEntity.getUsername());
@@ -18,6 +17,7 @@ public class UserMapper {
         dto.setIsVerified(userEntity.getIsVerified());
         dto.setRole(userEntity.getRole());
         dto.setCreatedAt(userEntity.getCreatedAt());
+        dto.setProfileImageUrl(publicUrl);
         return dto;
     }
 

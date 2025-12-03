@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig } from "axios";
 
-const AUTH_KEY = "kk_auth_token";
+export const AUTH_KEY = "kk_auth_token";
 
 export const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -11,16 +11,28 @@ if (saved) {
   axiosInstance.defaults.headers.common["Authorization"] = saved;
 }
 
+// set or clear Authorization header and persist token
 export function setAuthHeader(token: string | null) {
   if (token) {
-    const header = `Bearer ${token}`;
-    localStorage.setItem(AUTH_KEY, header);
-    axiosInstance.defaults.headers.common["Authorization"] = header;
+    localStorage.setItem(AUTH_KEY, token);
+    axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   } else {
     localStorage.removeItem(AUTH_KEY);
     delete axiosInstance.defaults.headers.common["Authorization"];
   }
 }
+
+// initialize from storage on module load
+(function initAuthFromStorage() {
+  try {
+    const saved = localStorage.getItem(AUTH_KEY);
+    if (saved) {
+      axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${saved}`;
+    }
+  } catch (e) {
+    // ignore (e.g. SSR or private mode)
+  }
+})();
 
 class ApiClient<T> {
   private endpoint: string;

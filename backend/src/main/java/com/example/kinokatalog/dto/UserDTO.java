@@ -17,4 +17,5 @@ public class UserDTO {
     private Boolean isVerified;
     private String role;
     private LocalDateTime createdAt;
+    private String profileImageUrl;
 }

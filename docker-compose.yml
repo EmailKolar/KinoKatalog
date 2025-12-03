@@ -121,6 +121,36 @@ services:
       db:
         condition: service_healthy
 
+    # MinIO Service (S3-compatible object storage)
+  minio:
+      image: minio/minio:latest
+      container_name: minio
+      restart: unless-stopped
+      ports:
+        - "9000:9000"    # S3 API
+        - "9001:9001"    # Web console UI
+      volumes:
+        - minio_data:/data
+      environment:
+        MINIO_ROOT_USER: minioadmin
+        MINIO_ROOT_PASSWORD: minioadmin
+      command: server /data --console-address ":9001"
+  # ClamAV Service for virus scanning
+  clamav:
+    image: mkodockx/docker-clamav:alpine
+    container_name: KinoKatalog-clamav
+    restart: unless-stopped
+    ports:
+      - "3310:3310"   # clamd TCP
+    environment:
+      - TZ=UTC
+    healthcheck:
+      test: [ "CMD-SHELL", "timeout 5 bash -c 'echo PING | nc -w 3 127.0.0.1 3310 | grep PONG || exit 1'" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
 # Volumes data persistence
 volumes:
   db_data:
@@ -129,3 +159,4 @@ volumes:
   neo4j_logs:
   neo4j_import:
   neo4j_plugins:
+  minio_data:

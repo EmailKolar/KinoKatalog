@@ -4,5 +4,5 @@ import com.example.kinokatalog.persistence.sql.entity.UserEntity;
 
 public interface UserService {
 
-    UserEntity findUserById(Integer userId);
+    UserEntity getUserById(Integer userId);
 }

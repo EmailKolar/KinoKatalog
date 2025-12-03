@@ -39,6 +39,9 @@ public class UserEntity {
 
     @Column(name = "full_name")
     private String fullName;
+
+    @Column(name = "profile_image_key")
+    private String profileImageKey; // stores MinIO object name
 /*
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference

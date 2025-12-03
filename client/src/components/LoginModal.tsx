@@ -13,6 +13,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useAuth } from "../services/auth";
+import { setAuthHeader, AUTH_KEY } from "../services/api-client";
 
 interface Props {
   isOpen: boolean;
@@ -29,15 +30,23 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const submit = async () => {
     setLoading(true);
     try {
+      // call auth.login (may persist token internally)
       await auth.login(username, password);
+
+      // read token from storage (or adjust if auth.login returns token)
+      const token = localStorage.getItem(AUTH_KEY);
+      if (token) {
+        // ensure axios instance has the header before any further requests
+        setAuthHeader(token);
+      }
+
+      // refresh user/profile now (will include Authorization)
+      if (typeof auth.refresh === "function") await auth.refresh();
+
       toast({ title: "Logged in", status: "success", duration: 2000 });
       onClose();
     } catch (err: any) {
-      toast({
-        title: "Login failed",
-        description: err?.response?.data?.message ?? err?.message ?? "Invalid credentials",
-        status: "error",
-      });
+      toast({ title: "Login failed", description: err?.response?.data?.message ?? err?.message ?? "Invalid credentials", status: "error" });
     } finally {
       setLoading(false);
     }

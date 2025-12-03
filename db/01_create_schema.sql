@@ -12,6 +12,7 @@ CREATE TABLE users (
   is_verified BOOLEAN DEFAULT FALSE,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_login DATETIME,
+  profile_image_key VARCHAR(255),
   role ENUM('USER','ADMIN') DEFAULT 'USER'
 );
 

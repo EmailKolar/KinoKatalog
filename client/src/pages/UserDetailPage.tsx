@@ -12,6 +12,7 @@ import {
   HStack,
 } from "@chakra-ui/react";
 import { useAuth } from "../services/auth";
+import { useChangeProfilePicture } from "../domain/user/UseChangeProfilePicture";
 
 const UserDetailPage: React.FC = () => {
   const { id } = useParams();
@@ -48,12 +49,22 @@ const UserDetailPage: React.FC = () => {
   const user = auth.user!;
   const onChooseFile = () => fileRef.current?.click();
 
-  const onFileChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    const url = URL.createObjectURL(f);
-    setPreviewUrl(url);
-  };
+  const changeProfile = useChangeProfilePicture();
+
+const onFileChange: React.ChangeEventHandler<HTMLInputElement> = async (e) => {
+  const f = e.target.files?.[0];
+  if (!f) return;
+
+  // local preview
+  setPreviewUrl(URL.createObjectURL(f));
+
+  try {
+    await changeProfile.upload(f); // 🚀 real upload
+    setPreviewUrl(null); // reset so Avatar uses backend URL
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   return (
     <Box p={6} maxW="720px" mx="auto">
@@ -64,7 +75,11 @@ const UserDetailPage: React.FC = () => {
 
       <Stack direction={["column", "row"]} spacing={6} alignItems="center">
         <Box textAlign="center">
-          <Avatar size="2xl" name={user.fullName || user.username} src={previewUrl ?? undefined} mb={3} />
+          <Avatar
+  size="2xl"
+  name={user.fullName || user.username}
+  src={previewUrl ?? user.profileImageUrl ?? undefined}
+/>
           <Input ref={fileRef} type="file" accept="image/*" display="none" onChange={onFileChange} />
           <Button onClick={onChooseFile} size="sm" variant="outline" mb={2}>
             Change photo

@@ -1,11 +1,13 @@
 package com.example.kinokatalog.controller;
 
 import com.example.kinokatalog.dto.UserDTO;
+import com.example.kinokatalog.service.ProfilePhotoService;
 import com.example.kinokatalog.service.impl.UserServiceSqlImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/users")
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserServiceSqlImpl userService;
+    private final ProfilePhotoService profilePhotoService;
 
     // GET /api/users/me -> returns the authenticated user's DTO (by id from token)
     @GetMapping("/me")
@@ -65,5 +68,27 @@ public class UserController {
         } catch (RuntimeException ex) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PostMapping("/{id}/profile-photo")
+    public ResponseEntity<?> uploadProfilePhoto(
+            @PathVariable Integer id,
+            @RequestParam("file") MultipartFile file,
+            Authentication authentication
+    ) throws Exception {
+
+        if (authentication == null) return ResponseEntity.status(401).build();
+
+        // enforce "can only update yourself"
+        Object details = authentication.getDetails();
+        Integer principalId = (details instanceof Integer) ? (Integer) details : null;
+
+        if (principalId == null || !principalId.equals(id))
+            return ResponseEntity.status(403).body("Not allowed");
+
+        String key = profilePhotoService.upload(file, Long.valueOf(id));
+        userService.updateProfileImageKey(id, key);
+
+        return ResponseEntity.ok("Profile photo updated");
     }
 }

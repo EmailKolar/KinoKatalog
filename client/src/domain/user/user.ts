@@ -7,4 +7,5 @@ export interface User {
     fullName: string;
     role: string;
     createdAt: string;
+    profileImageUrl: string | null;
 }
