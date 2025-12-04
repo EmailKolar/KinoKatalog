@@ -32,6 +32,8 @@ public class SecurityConfig {
         this.jwtUtil = jwtUtil;
     }
 
+
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, UserDetailsService uds) throws Exception {
         var jwtFilter = new JwtAuthenticationFilter(jwtUtil, uds);
@@ -48,8 +50,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/movies/**").hasRole("ADMIN")
                         .requestMatchers("/api/movies/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
-                        .requestMatchers("/api/users/**").authenticated()
+                        .requestMatchers("/api/users/register").permitAll()
+                        .requestMatchers("/api/users/me").authenticated()
+                        .requestMatchers("/api/users/{id}").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/users/upload").authenticated()
+
                         .anyRequest().authenticated()
                 );
 
