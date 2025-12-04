@@ -1,14 +1,25 @@
 import React from "react";
-import { HStack, Image, Button, Menu, MenuButton, MenuList, MenuItem, useDisclosure } from "@chakra-ui/react";
+import {
+  HStack,
+  Image,
+  Button,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  useDisclosure,
+} from "@chakra-ui/react";
 import logo from "../../assets/logo.webp";
 import ColorModeSwitch from "./ColorModeSwitch";
 import { SearchInput } from "./SearchInput";
-import LoginModal from "../LoginModal"; // updated import
+import LoginModal from "../LoginModal";
+import RegisterModal from "../RegisterModal";
 import { useAuth } from "../../services/auth";
 import { Link } from "react-router-dom";
 
 const NavBar = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const loginModal = useDisclosure();
+  const registerModal = useDisclosure();
   const auth = useAuth();
 
   return (
@@ -18,17 +29,28 @@ const NavBar = () => {
       <HStack>
         <ColorModeSwitch />
 
-        {/* show Login when not authenticated */}
         {!auth.isAuthenticated ? (
           <>
-            <Button size="sm" onClick={onOpen}>
+            <Button size="sm" onClick={loginModal.onOpen}>
               Login
             </Button>
-            <LoginModal isOpen={isOpen} onClose={onClose} />
+
+            <Button size="sm" variant="outline" onClick={registerModal.onOpen}>
+              Register
+            </Button>
+
+            <LoginModal
+              isOpen={loginModal.isOpen}
+              onClose={loginModal.onClose}
+            />
+
+            <RegisterModal
+              isOpen={registerModal.isOpen}
+              onClose={registerModal.onClose}
+            />
           </>
         ) : (
           <>
-            {/* explicit admin button for admins */}
             {auth.isAdmin && (
               <Button as={Link} to="/admin" colorScheme="red" size="sm">
                 Go to admin

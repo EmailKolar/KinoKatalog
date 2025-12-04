@@ -10,6 +10,7 @@ type AuthContextValue = {
   logout: () => void;
   refresh: () => Promise<void>;
   ensureUserLoaded: () => Promise<void>;
+  register: (req: { username: string; email: string; password: string }) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -52,6 +53,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsAuthenticated(false);
     setAuthHeader(null);
   };
+  const register = async (req: { username: string; email: string; password: string }) => {
+    // Send new user registration request
+    await axiosInstance.post("users/register", req);
+  }; 
 
   const value: AuthContextValue = {
     user,
@@ -61,6 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     logout,
     refresh,
     ensureUserLoaded,
+    register,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
