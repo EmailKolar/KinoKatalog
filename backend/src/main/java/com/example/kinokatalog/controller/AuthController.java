@@ -67,10 +67,10 @@ public class AuthController {
             // Set HttpOnly cookie instead of returning token in body
             Cookie cookie = new Cookie("authToken", token);
             cookie.setHttpOnly(true);
-            cookie.setSecure(true); // Set to false for local dev without HTTPS
+            cookie.setSecure(false); // Set to false for local dev without HTTPS
             cookie.setPath("/");
             cookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
-            cookie.setAttribute("SameSite", "None"); // or "Strict"
+            cookie.setAttribute("SameSite", "Lax"); // or "Strict"
             response.addCookie(cookie);
 
             // Return user info without token

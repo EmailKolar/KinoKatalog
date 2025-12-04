@@ -1,5 +1,10 @@
 package com.example.kinokatalog.config;
 
+
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.HttpHeaders;
 import com.example.kinokatalog.service.MyUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,8 +48,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
-                        .ignoringRequestMatchers("/api/auth/login", "/api/users/register") // Allow login & register without CSRF token
+                        .ignoringRequestMatchers("/api/auth/login", "/api/users/register")
                 )
+                .addFilterAfter(csrfCookieFilter(), CsrfFilter.class)
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(
                         org.springframework.security.config.http.SessionCreationPolicy.STATELESS
@@ -83,6 +89,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/users/upload").authenticated()
                         .anyRequest().authenticated()
                 );
+        http.addFilterAfter(csrfCookieFilter(), CsrfFilter.class);
+
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -92,6 +100,11 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
+    }
+
+    @Bean
+    public CsrfCookieFilter csrfCookieFilter() {
+        return new CsrfCookieFilter();
     }
 
     @Bean
