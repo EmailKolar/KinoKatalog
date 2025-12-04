@@ -1,7 +1,11 @@
 package com.example.kinokatalog.controller;
 
+import com.example.kinokatalog.dto.RegisterRequest;
 import com.example.kinokatalog.dto.UserDTO;
+import com.example.kinokatalog.exception.ConflictException;
+import com.example.kinokatalog.exception.InvalidDataException;
 import com.example.kinokatalog.service.impl.UserServiceSqlImpl;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -110,6 +114,25 @@ public class UserController {
 
         return ResponseEntity.ok("Profile picture accepted!");
     }
+
+
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
+        try {
+            UserDTO user = userService.register(req);
+            return ResponseEntity.status(201).body(user);
+        } catch (InvalidDataException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (ConflictException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Internal error");
+        }
+    }
+
+
+
 
 
 

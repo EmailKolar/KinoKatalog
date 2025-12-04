@@ -1,9 +1,11 @@
 package com.example.kinokatalog.config;
 
+import com.example.kinokatalog.service.MyUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -32,14 +34,19 @@ public class SecurityConfig {
         this.jwtUtil = jwtUtil;
     }
 
+
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, UserDetailsService uds) throws Exception {
-        var jwtFilter = new JwtAuthenticationFilter(jwtUtil, uds);
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, MyUserDetailsService myUserDetailsService) throws Exception {
+        var jwtFilter = new JwtAuthenticationFilter(jwtUtil, myUserDetailsService);
 
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.STATELESS))
+
+                .userDetailsService(myUserDetailsService)
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()   // allow login
@@ -48,8 +55,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/movies/**").hasRole("ADMIN")
                         .requestMatchers("/api/movies/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
-                        .requestMatchers("/api/users/**").authenticated()
+                        .requestMatchers("/api/users/register").permitAll()
+                        .requestMatchers("/api/users/me").authenticated()
+                        .requestMatchers("/api/users/{id}").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/users/upload").authenticated()
+
                         .anyRequest().authenticated()
                 );
 
@@ -62,22 +72,6 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
-    }
-
-    @Bean
-    public UserDetailsService users(PasswordEncoder passwordEncoder) {
-        var admin = User.withUsername("admin")
-                .password(passwordEncoder.encode("adminpass"))
-                .roles("ADMIN")
-                .build();
-
-        // add a normal user for testing:
-        var user = User.withUsername("user")
-                .password(passwordEncoder.encode("userpass"))
-                .roles("USER")
-                .build();
-
-        return new InMemoryUserDetailsManager(admin, user);
     }
 
     @Bean
