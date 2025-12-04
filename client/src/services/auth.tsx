@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import ApiClient, { axiosInstance, setAuthHeader } from "./api-client";
+import ApiClient, { axiosInstance } from "./api-client";
 import { User } from "../domain/user/user";
 
 type AuthContextValue = {
@@ -7,7 +7,7 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   isAdmin: boolean;
   login: (username: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   refresh: () => Promise<void>;
   ensureUserLoaded: () => Promise<void>;
   register: (req: { username: string; email: string; password: string }) => Promise<void>;
@@ -18,45 +18,52 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 const usersClient = new ApiClient<User>("users");
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const tokenPresent = !!localStorage.getItem("kk_auth_token");
   const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(tokenPresent);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   const refresh = async () => {
-    const me = await usersClient.get("me");
-    setUser(me);
+    try {
+      const me = await usersClient.get("me");
+      setUser(me);
+      setIsAuthenticated(true);
+    } catch (error) {
+      // If refresh fails, user is not authenticated
+      setUser(null);
+      setIsAuthenticated(false);
+      throw error;
+    }
   };
 
   const ensureUserLoaded = async () => {
     if (user) return;
-    if (!isAuthenticated) throw new Error("not authenticated");
-    await refresh();
+    await refresh(); // This will throw if not authenticated
   };
 
   const login = async (username: string, password: string) => {
-    const res = await axiosInstance.post("auth/login", { username, password });
-    const token: string = res.data?.token ?? res.data?.accessToken ?? res.data;
-    if (!token) throw new Error("No token returned");
-    setAuthHeader(token);
-    setIsAuthenticated(true);
+    // No need to handle token - cookie is set automatically by backend
+    await axiosInstance.post("auth/login", { username, password });
+    
+    // Fetch user data after successful login
+    await refresh();
+  };
+
+  const logout = async () => {
     try {
-      await refresh();
-    } catch (err) {
-      setAuthHeader(null);
+      // Call backend logout to clear cookie
+      await axiosInstance.post("auth/logout");
+    } catch (error) {
+      // Even if logout fails, clear local state
+      console.error("Logout error:", error);
+    } finally {
+      setUser(null);
       setIsAuthenticated(false);
-      throw err;
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    setIsAuthenticated(false);
-    setAuthHeader(null);
-  };
   const register = async (req: { username: string; email: string; password: string }) => {
     // Send new user registration request
     await axiosInstance.post("users/register", req);
-  }; 
+  };
 
   const value: AuthContextValue = {
     user,
@@ -67,6 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     refresh,
     ensureUserLoaded,
     register,
+
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
