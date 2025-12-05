@@ -3,6 +3,7 @@ package com.example.kinokatalog.service;
 import com.example.kinokatalog.persistence.sql.entity.UserEntity;
 import com.example.kinokatalog.persistence.sql.repository.UserSqlRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,10 +20,10 @@ public class MyUserDetailsService implements UserDetailsService {
         UserEntity user = repo.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("not found"));
 
-        return org.springframework.security.core.userdetails.User
+        return User
                 .withUsername(user.getUsername())
-                .password(user.getPasswordHash()) // already encoded
-                //.roles(user.getRole().replace("ROLE_", ""))
+                .password(user.getPasswordHash())
+                .roles(user.getRole())
                 .build();
     }
 }
