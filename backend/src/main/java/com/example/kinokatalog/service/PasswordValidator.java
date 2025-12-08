@@ -32,7 +32,11 @@ public class PasswordValidator {
         if (CommonPasswords.BLACKLIST.contains(lowerPwd))
             return false;
 
-        // 4. Check category strength (must match all categories)
+        // 4. Check for illegal characters
+        if (containsIllegalCharacters(password))
+            return false;
+
+        // 5. Check category strength (must match all categories)
         int categories = 0;
 
         if (containsLowercase(password)) categories++;
@@ -57,6 +61,13 @@ public class PasswordValidator {
 
     private static boolean containsSpecial(String s) {
         return s.chars().anyMatch(c -> SPECIAL_CHARS.indexOf(c) >= 0);
+    }
+
+    private static boolean containsIllegalCharacters(String s) {
+        for (char c : s.toCharArray()) {
+            if (c <= 31 || c == 127) return true;
+        }
+        return false;
     }
 
 

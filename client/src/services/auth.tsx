@@ -39,9 +39,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await refresh(); // This will throw if not authenticated
   };
 
-  const login = async (username: string, password: string) => {
+  const login = async (identifier: string, password: string) => {
     // No need to handle token - cookie is set automatically by backend
-    await axiosInstance.post("auth/login", { username, password });
+    await axiosInstance.post("auth/login", { identifier, password });
     
     // Fetch user data after successful login
     await refresh();
