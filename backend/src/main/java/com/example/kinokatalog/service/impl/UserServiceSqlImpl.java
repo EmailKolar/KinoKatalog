@@ -36,10 +36,13 @@ public class UserServiceSqlImpl {
     }
 
     public UserDTO register(RegisterRequest req){
+        req.setUsername(req.getUsername().trim());
+        req.setEmail(req.getEmail().trim());
 
         if (!isValidEmail(req.getEmail())) {
             throw new InvalidDataException("Invalid email format");
         }
+
         if (!isValidUsername(req.getUsername())) {
             throw new InvalidDataException("Invalid username format");
         }
@@ -61,20 +64,44 @@ public class UserServiceSqlImpl {
         newUser.setRole("USER");
         UserEntity savedUser = userSqlRepository.save(newUser);
         return UserMapper.toUserDTO(savedUser);
+    }
 
+    boolean isValidEmail(String email) {
+        if (email == null) return false;
 
+        if (email.length() > 254) return false;
+        if (!email.contains("@")) return false;
 
+        String[] parts = email.split("@", -1);
+        if (parts.length != 2) return false;
+
+        String local = parts[0];
+        String domain = parts[1];
+
+        if (local.isEmpty() || domain.isEmpty()) return false;
+        if (local.length() > 64) return false;
+        if (email.contains("..")) return false;
+
+        // Simple allowed chars (your regex)
+        if (!email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+$"))
+            return false;
+
+        // domain must contain dot
+        if (!domain.contains(".")) return false;
+
+        // domain-label rules
+        for (String label : domain.split("\\.")) {
+            if (label.isEmpty()) return false;
+            if (label.length() > 63) return false;
+            if (label.startsWith("-") || label.endsWith("-")) return false;
+        }
+
+        return true;
     }
 
 
-
-    private boolean isValidEmail(String email){
-        String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"; //TODO match test reqs
-        return email != null && email.matches(emailRegex);
-    }
-
-    private boolean isValidUsername(String username){
-        String usernameRegex = "^[a-zA-Z0-9._-]{3,20}$"; //TODO match test reqs
+    boolean isValidUsername(String username){
+        String usernameRegex = "^[A-Za-z0-9_-]{3,20}$";
         return username != null && username.matches(usernameRegex);
     }
 
