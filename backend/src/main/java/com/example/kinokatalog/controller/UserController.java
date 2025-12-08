@@ -1,11 +1,20 @@
 package com.example.kinokatalog.controller;
 
+import com.example.kinokatalog.dto.RegisterRequest;
 import com.example.kinokatalog.dto.UserDTO;
+import com.example.kinokatalog.exception.ConflictException;
+import com.example.kinokatalog.exception.InvalidDataException;
 import com.example.kinokatalog.service.impl.UserServiceSqlImpl;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.net.URLConnection;
 
 @RestController
 @RequestMapping("/api/users")
@@ -66,4 +75,65 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PostMapping(value = "/upload", consumes = "multipart/form-data")
+    public ResponseEntity<?> uploadProfilePicture(
+            @RequestParam("file") MultipartFile file,
+            Authentication authentication
+    ) throws Exception {
+
+        if (authentication == null) {
+            return ResponseEntity.status(401).body("Not authenticated");
+        }
+
+        // Max size 5 MB
+        if (file.getSize() > 5 * 1024 * 1024) {
+            return ResponseEntity.badRequest().body("File too large");
+        }
+
+        // Allowed MIME types from browser
+        String browserType = file.getContentType();
+        if (browserType == null ||
+                !(browserType.equals("image/jpeg") ||
+                        browserType.equals("image/png")  ||
+                        browserType.equals("image/webp"))) {
+            return ResponseEntity.badRequest().body("Invalid content type");
+        }
+
+        // Read file ONCE into bytes so stream cannot be consumed accidentally
+        byte[] bytes = file.getBytes();
+
+        // Try decoding image (ultimate validation)
+        BufferedImage img = ImageIO.read(new java.io.ByteArrayInputStream(bytes));
+        if (img == null) {
+            return ResponseEntity.badRequest().body("File is not a valid image");
+        }
+
+        System.out.println("VALID IMAGE UPLOAD: " + file.getOriginalFilename());
+        System.out.println("Width: " + img.getWidth() + ", Height: " + img.getHeight());
+
+        return ResponseEntity.ok("Profile picture accepted!");
+    }
+
+
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
+        try {
+            UserDTO user = userService.register(req);
+            return ResponseEntity.status(201).body(user);
+        } catch (InvalidDataException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (ConflictException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Internal error");
+        }
+    }
+
+
+
+
+
+
 }

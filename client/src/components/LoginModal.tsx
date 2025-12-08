@@ -20,7 +20,7 @@ interface Props {
 }
 
 const LoginModal: React.FC<Props> = ({ isOpen, onClose }) => {
-  const [username, setUsername] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const auth = useAuth();
@@ -29,7 +29,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const submit = async () => {
     setLoading(true);
     try {
-      await auth.login(username, password);
+      await auth.login(identifier, password);
       toast({ title: "Logged in", status: "success", duration: 2000 });
       onClose();
     } catch (err: any) {
@@ -50,8 +50,8 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose }) => {
         <ModalHeader>Sign in</ModalHeader>
         <ModalBody>
           <FormControl mb={3}>
-            <FormLabel>Username</FormLabel>
-            <Input value={username} onChange={(e) => setUsername(e.target.value)} />
+            <FormLabel>Username or Email</FormLabel>
+            <Input value={identifier} onChange={(e) => setIdentifier(e.target.value)} />
           </FormControl>
           <FormControl mb={3}>
             <FormLabel>Password</FormLabel>

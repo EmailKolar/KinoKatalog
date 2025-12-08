@@ -9,4 +9,6 @@ public interface ReviewService {
 
     List<ReviewEntity> getReviewsByMovie(Integer movieId);
     ReviewEntity addReview(ReviewEntity reviewEntity);
+
+    ReviewEntity addReviewToMovie(Integer movieId, ReviewEntity review, String username);
 }

@@ -1,5 +1,6 @@
 package com.example.kinokatalog.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -28,5 +29,6 @@ public class MovieDTO {
     private BigDecimal averageRating;
     private Integer reviewCount;
     private String posterUrl;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime createdAt;
 }

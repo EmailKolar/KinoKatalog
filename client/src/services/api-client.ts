@@ -1,26 +1,32 @@
 import axios, { AxiosRequestConfig } from "axios";
 
-const AUTH_KEY = "kk_auth_token";
-
+// Create axios instance with credentials enabled
 export const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true, // CRITICAL: This sends cookies automatically
 });
 
-const saved = localStorage.getItem(AUTH_KEY);
-if (saved) {
-  axiosInstance.defaults.headers.common["Authorization"] = saved;
+// Helper to get CSRF token from cookie
+function getCsrfToken(): string | null {
+  const name = "XSRF-TOKEN=";
+  const cookies = document.cookie.split(";");
+  for (let cookie of cookies) {
+    cookie = cookie.trim();
+    if (cookie.startsWith(name)) {
+      return cookie.substring(name.length);
+    }
+  }
+  return null;
 }
 
-export function setAuthHeader(token: string | null) {
-  if (token) {
-    const header = `Bearer ${token}`;
-    localStorage.setItem(AUTH_KEY, header);
-    axiosInstance.defaults.headers.common["Authorization"] = header;
-  } else {
-    localStorage.removeItem(AUTH_KEY);
-    delete axiosInstance.defaults.headers.common["Authorization"];
+// Add CSRF token to all state-changing requests
+axiosInstance.interceptors.request.use((config) => {
+  const csrfToken = getCsrfToken();
+  if (csrfToken && config.method && ["post", "put", "delete", "patch"].includes(config.method.toLowerCase())) {
+    config.headers["X-XSRF-TOKEN"] = csrfToken;
   }
-}
+  return config;
+});
 
 class ApiClient<T> {
   private endpoint: string;
@@ -47,4 +53,5 @@ export interface Response<T> {
   results: T[];
   next: string | null;
 }
+
 export default ApiClient;

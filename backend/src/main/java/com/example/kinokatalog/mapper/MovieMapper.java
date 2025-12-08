@@ -18,6 +18,7 @@ public class MovieMapper {
         dto.setAverageRating(entity.getAverageRating());
         dto.setReviewCount(entity.getReviewCount());
         dto.setPosterUrl(entity.getPosterUrl());
+        dto.setCreatedAt(entity.getCreatedAt());
         return dto;
     }
 

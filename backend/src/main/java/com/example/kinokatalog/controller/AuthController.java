@@ -1,7 +1,10 @@
 package com.example.kinokatalog.controller;
 
 import com.example.kinokatalog.config.JwtUtil;
+import com.example.kinokatalog.config.SecurityUser;
 import com.example.kinokatalog.dto.UserDTO;
+import com.example.kinokatalog.service.auth.LoginResult;
+import com.example.kinokatalog.service.auth.LoginService;
 import com.example.kinokatalog.service.impl.UserServiceSqlImpl;
 import lombok.Data;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,68 +27,67 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final UserServiceSqlImpl userService;
+    private final LoginService loginService;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserServiceSqlImpl userService) {
+    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserServiceSqlImpl userService, LoginService loginService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.userService = userService;
+        this.loginService = loginService;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest req) {
-        try {
-            Authentication auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword())
-            );
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest req, HttpServletResponse response) {
 
-            var roles = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+        LoginResult result = loginService.login(req.getIdentifier(), req.getPassword());
 
-            // try to obtain numeric userId from the authenticated principal (if custom UserDetails provides it)
-            Integer userId = null;
-            Object principal = auth.getPrincipal();
-            if (principal != null) {
-                try {
-                    // attempt to call getId() reflectively (works if your UserDetails implementation exposes id)
-                    var m = principal.getClass().getMethod("getId");
-                    Object idObj = m.invoke(principal);
-                    if (idObj instanceof Number) userId = ((Number) idObj).intValue();
-                } catch (NoSuchMethodException ignored) {
-                    // no getId on principal -> fallback below
-                }
-            }
-
-            // fallback: resolve by username (keeps compatibility)
-            if (userId == null) {
-                try {
-                    UserDTO user = userService.getUserByUsername(req.getUsername());
-                    userId = user.getId();
-                } catch (RuntimeException e) {
-                    // user not found in DB -> authentication succeeded (maybe from in-memory), but no DB user to attach => reject
-                    return ResponseEntity.status(401).build();
-                }
-            }
-
-            String token = jwtUtil.generateToken(req.getUsername(), roles, userId);
-
-            return ResponseEntity.ok(new LoginResponse(token, req.getUsername(), roles, userId));
-        } catch (BadCredentialsException ex) {
-            return ResponseEntity.status(401).build();
-        } catch (Exception ex) {
+        if (!result.isSuccess()) {
+            if ("INVALID_CREDENTIALS".equals(result.getError()))
+                return ResponseEntity.status(401).build();
             return ResponseEntity.status(500).build();
         }
+
+        // Set HttpOnly cookie
+        Cookie cookie = new Cookie("authToken", result.getToken());
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setPath("/");
+        cookie.setMaxAge(7 * 24 * 60 * 60);
+        cookie.setAttribute("SameSite", "Lax");
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(
+                new LoginResponse(result.getUsername(), result.getRoles(), result.getUserId())
+        );
+    }
+
+
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        // Clear the cookie
+        Cookie cookie = new Cookie("authToken", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok().build();
     }
 
     @Data
     public static class LoginRequest {
-        private String username;
+        private String identifier;
         private String password;
     }
 
     @Data
     public static class LoginResponse {
-        private final String token;
         private final String username;
         private final List<String> roles;
         private final Integer userId;
     }
+
+
 }

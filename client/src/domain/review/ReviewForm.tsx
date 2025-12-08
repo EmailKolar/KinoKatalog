@@ -32,10 +32,19 @@ const ReviewForm = ({ movieId }: Props) => {
     if (!content.trim()) return;
     if (rating === "") return; // rating required
     mutation.mutate({
-      content: content.trim(),
+      reviewText: content.trim(),
       rating: Number(rating),
     });
   };
+
+  // Convert unknown mutation.error into a safe string/ReactNode
+  const errorMessage: string | null = mutation.error
+    ? mutation.error instanceof Error
+      ? mutation.error.message
+      : typeof mutation.error === "string"
+      ? mutation.error
+      : JSON.stringify(mutation.error)
+    : null;
 
   return (
     <VStack as="form" spacing={3} onSubmit={handleSubmit} align="stretch">
@@ -71,9 +80,7 @@ const ReviewForm = ({ movieId }: Props) => {
         </Select>
       </FormControl>
 
-      {mutation.error && (
-        <Text color="tomato">{(mutation.error as Error).message}</Text>
-      )}
+      {errorMessage && <Text color="tomato">{errorMessage}</Text>}
 
       <Button
         type="submit"
