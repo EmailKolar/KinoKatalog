@@ -1,7 +1,11 @@
 package com.example.kinokatalog.controller;
 
 
+import com.example.kinokatalog.dto.CreateReviewRequest;
 import com.example.kinokatalog.dto.ReviewDTO;
+import com.example.kinokatalog.exception.InvalidDataException;
+import com.example.kinokatalog.exception.NotFoundException;
+import com.example.kinokatalog.exception.UnauthorizedException;
 import com.example.kinokatalog.mapper.ReviewMapper;
 import com.example.kinokatalog.persistence.sql.entity.MovieEntity;
 import com.example.kinokatalog.persistence.sql.entity.ReviewEntity;
@@ -31,46 +35,35 @@ public class ReviewController {
                                .collect(Collectors.toList());
     }
 
-//    @PostMapping
-//    public ResponseEntity<ReviewEntity> createReview(@RequestBody ReviewEntity reviewEntity) {
-//        ReviewEntity saved = reviewServiceSqlImpl.addReview(reviewEntity);
-//        return ResponseEntity.ok(saved);
-//    }
-    // REMOVE or comment out any endpoint that accepts a full ReviewEntity from the client:
-    // public ResponseEntity<ReviewEntity> createReview(@RequestBody ReviewEntity reviewEntity) { ... }
-
-    @PostMapping(path = "/movie/{movieId}",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/movie/{movieId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ReviewDTO> createReviewForMovie(
             @PathVariable Integer movieId,
-            @RequestBody Map<String, Object> body,
+            @RequestBody CreateReviewRequest req,
             Authentication authentication) {
 
-        // require authentication explicitly
         if (authentication == null || authentication.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        // validate and extract primitive fields only
-        Object r = body.get("rating");
-        Integer rating = (r instanceof Number) ? ((Number) r).intValue() : null;
-        String reviewText = body.get("reviewText") != null ? String.valueOf(body.get("reviewText")).trim() : null;
+        try {
+            ReviewEntity saved = reviewServiceSqlImpl.addReviewToMovie(
+                    movieId,
+                    req.getRating(),
+                    req.getReviewText(),
+                    authentication.getName()
+            );
 
-        if (rating == null || reviewText == null || reviewText.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ReviewMapper.toDTO(saved));
+
+        } catch (InvalidDataException ex) {
             return ResponseEntity.badRequest().build();
+        } catch (NotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (UnauthorizedException ex) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
-        // build entity with only primitive fields (do not set relations from client input)
-        ReviewEntity review = new ReviewEntity();
-        review.setRating(rating);
-        review.setReviewText(reviewText);
-
-        // pass authenticated username to service so it can attach the user relation
-        String username = authentication.getName();
-        ReviewEntity saved = reviewServiceSqlImpl.addReviewToMovie(movieId, review, username);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(ReviewMapper.toDTO(saved));
     }
+
 
 }
