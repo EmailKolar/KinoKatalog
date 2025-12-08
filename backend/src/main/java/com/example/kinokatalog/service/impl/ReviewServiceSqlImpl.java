@@ -1,6 +1,9 @@
 package com.example.kinokatalog.service.impl;
 
 
+import com.example.kinokatalog.exception.InvalidDataException;
+import com.example.kinokatalog.exception.NotFoundException;
+import com.example.kinokatalog.exception.UnauthorizedException;
 import com.example.kinokatalog.persistence.sql.entity.MovieEntity;
 import com.example.kinokatalog.persistence.sql.entity.ReviewEntity;
 import com.example.kinokatalog.persistence.sql.entity.UserEntity;
@@ -18,7 +21,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ReviewServiceSqlImpl implements ReviewService {
+public class ReviewServiceSqlImpl {
     private final ReviewSqlRepository reviewSqlRepository;
     private final MovieSqlRepository movieSqlRepository;
     private final UserSqlRepository userSqlRepository;
@@ -27,29 +30,48 @@ public class ReviewServiceSqlImpl implements ReviewService {
         return reviewSqlRepository.findByMovieEntity_Id(movieId);
     }
 
-    public ReviewEntity addReview(ReviewEntity reviewEntity) {
-        return reviewSqlRepository.save(reviewEntity);
-    }
 
-    /**
-     * Attach movie and user (by username) then save.
-     * Throws EntityNotFoundException if movie or user is missing.
-     */
-    @Override
-    public ReviewEntity addReviewToMovie(Integer movieId, ReviewEntity reviewEntity, String username) {
-        MovieEntity movieEntity = movieSqlRepository.findById(movieId)
-                .orElseThrow(() -> new EntityNotFoundException("Movie not found with id: " + movieId));
-        reviewEntity.setMovieEntity(movieEntity);
+    public ReviewEntity addReviewToMovie(
+            Integer movieId,
+            Integer rating,
+            String reviewText,
+            String username) {
 
-        if (username == null) {
-            throw new EntityNotFoundException("Authenticated user required to add review");
+        if (rating == null || rating < 0 || rating > 10)
+            throw new InvalidDataException("Invalid rating");
+
+        if (reviewText == null || reviewText.isBlank())
+            throw new InvalidDataException("Invalid text");
+
+        if (reviewText.length() > 5000)
+            throw new InvalidDataException("Text too long");
+        if (hasUnsafeCharacters(reviewText)) {
+            throw new InvalidDataException("Text contains illegal characters");
         }
 
-        UserEntity userEntity = userSqlRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with username: " + username));
-        reviewEntity.setUserEntity(userEntity);
 
-        return reviewSqlRepository.save(reviewEntity);
+        UserEntity user = userSqlRepository.findByUsername(username)
+                .orElseThrow(() -> new UnauthorizedException("User not found"));
+
+        MovieEntity movie = movieSqlRepository.findById(movieId)
+                .orElseThrow(() -> new NotFoundException("Movie not found"));
+
+        ReviewEntity entity = new ReviewEntity();
+        entity.setUserEntity(user);
+        entity.setMovieEntity(movie);
+        entity.setRating(rating);
+        entity.setReviewText(reviewText);
+
+        return reviewSqlRepository.save(entity);
     }
+    private boolean hasUnsafeCharacters(String s) {
+        for (char c : s.toCharArray()) {
+            if (c <= 31 || c == 127) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
 
