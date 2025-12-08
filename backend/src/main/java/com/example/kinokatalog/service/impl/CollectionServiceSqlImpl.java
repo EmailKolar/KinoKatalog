@@ -1,6 +1,9 @@
 package com.example.kinokatalog.service.impl;
 
 import com.example.kinokatalog.dto.CollectionDTO;
+import com.example.kinokatalog.exception.ConflictException;
+import com.example.kinokatalog.exception.InvalidDataException;
+import com.example.kinokatalog.exception.NotFoundException;
 import com.example.kinokatalog.mapper.CollectionMapper;
 
 import com.example.kinokatalog.persistence.sql.entity.MovieEntity;
@@ -52,22 +55,58 @@ public class CollectionServiceSqlImpl implements CollectionService {
     @Override
     public CollectionDTO createCollection(CollectionDTO dto) {
 
-        if (collectionRepo.existsByUserIdAndName(dto.getUserId(), dto.getName())) {
-            throw new IllegalArgumentException("Collection with that name already exists for this user.");
+        if (dto == null) {
+            throw new InvalidDataException("Request body cannot be null");
         }
 
-        UserEntity user = userRepo.findById(dto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        Integer userId = dto.getUserId();
+        String name = dto.getName();
+        String description = dto.getDescription();
+
+        if (userId == null || userId < 1) {
+            throw new InvalidDataException("Invalid user ID");
+        }
+
+        UserEntity user = userRepo.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        if (name == null || name.isBlank()) {
+            throw new InvalidDataException("Collection name cannot be empty");
+        }
+
+        if (name.length() > 100) {
+            throw new InvalidDataException("Collection name too long");
+        }
+
+        if (hasUnsafeCharacters(name)) {
+            throw new InvalidDataException("Collection name contains illegal characters");
+        }
+
+        if (collectionRepo.existsByUserIdAndName(userId, name)) {
+            throw new ConflictException("Collection with that name already exists for this user");
+        }
+
+        if (description != null) {
+
+            if (description.length() > 4000) {
+                throw new InvalidDataException("Description too long");
+            }
+
+            if (hasUnsafeCharacters(description)) {
+                throw new InvalidDataException("Description contains illegal characters");
+            }
+        }
 
         CollectionEntity entity = new CollectionEntity();
-        entity.setUser(user);                 // <-- FIXED
-        entity.setName(dto.getName());
-        entity.setDescription(dto.getDescription());
+        entity.setUser(user);
+        entity.setName(name);
+        entity.setDescription(description);
 
         CollectionEntity saved = collectionRepo.save(entity);
-
         return mapper.toDTO(saved);
     }
+
+
 
     @Override
     public CollectionDTO updateCollection(Integer id, CollectionDTO dto) {
@@ -117,5 +156,14 @@ public class CollectionServiceSqlImpl implements CollectionService {
         return collectionRepo.findByUserId(userId).stream()
                 .map(mapper::toDTO)
                 .toList();
+    }
+
+    private boolean hasUnsafeCharacters(String s) {
+        for (char c : s.toCharArray()) {
+            if (c <= 31 || c == 127) {
+                return true;
+            }
+        }
+        return false;
     }
 }
