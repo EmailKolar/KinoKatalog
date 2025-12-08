@@ -35,57 +35,7 @@ public class AuthController {
         this.userService = userService;
         this.loginService = loginService;
     }
-/*
-    @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest req, HttpServletResponse response) {
-        try {
-            Authentication auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(req.getIdentifier(), req.getPassword())
-            );
 
-            var roles = auth.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .collect(Collectors.toList());
-
-            // Resolve userId
-            Integer userId = null;
-            Object principal = auth.getPrincipal();
-            if (principal != null) {
-                try {
-                    var m = principal.getClass().getMethod("getId");
-                    Object idObj = m.invoke(principal);
-                    if (idObj instanceof Number) userId = ((Number) idObj).intValue();
-                } catch (NoSuchMethodException ignored) {}
-            }
-
-            if (userId == null) {
-                try {
-                    UserDTO user = userService.getUserByUsername(req.getIdentifier());
-                    userId = user.getId();
-                } catch (RuntimeException e) {
-                    return ResponseEntity.status(401).build();
-                }
-            }
-
-            String token = jwtUtil.generateToken(req.getIdentifier(), roles, userId);
-
-            // Set HttpOnly cookie instead of returning token in body
-            Cookie cookie = new Cookie("authToken", token);
-            cookie.setHttpOnly(true);
-            cookie.setSecure(false); // Set to false for local dev without HTTPS
-            cookie.setPath("/");
-            cookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
-            cookie.setAttribute("SameSite", "Lax"); // or "Strict"
-            response.addCookie(cookie);
-
-            // Return user info without token
-            return ResponseEntity.ok(new LoginResponse(req.getIdentifier(), roles, userId));
-        } catch (BadCredentialsException ex) {
-            return ResponseEntity.status(401).build();
-        } catch (Exception ex) {
-            return ResponseEntity.status(500).build();
-        }
-    }*/
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest req, HttpServletResponse response) {
 
