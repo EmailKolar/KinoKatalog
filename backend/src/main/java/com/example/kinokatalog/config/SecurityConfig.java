@@ -90,6 +90,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/mongo/**").permitAll()
                         .requestMatchers("/api/mongo/detail/**").permitAll()
+                        .requestMatchers("/api/neo/movies/**").permitAll()
                         .anyRequest().authenticated()
                 );
         http.addFilterAfter(csrfCookieFilter(), CsrfFilter.class);
