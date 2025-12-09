@@ -13,7 +13,6 @@ public class ActedInRelation {
     @GeneratedValue
     private Long id;
 
-
     private String character;
     private Integer billingOrder;
 

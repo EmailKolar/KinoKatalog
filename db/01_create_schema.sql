@@ -23,7 +23,7 @@ CREATE TABLE movies (
   overview VARCHAR(5000),
   release_date DATE,
   runtime INT,
-  average_rating DECIMAL(3,2) DEFAULT 0.00,
+  average_rating DECIMAL(4,2) DEFAULT 0.00,
   review_count INT DEFAULT 0,
   poster_url VARCHAR(1024),
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP

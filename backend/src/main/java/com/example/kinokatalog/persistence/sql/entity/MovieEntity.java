@@ -33,7 +33,7 @@ public class MovieEntity {
     private LocalDate releaseDate;
     private Integer runtime;
 
-    @Column(precision = 3, scale = 2)
+    @Column(precision = 4, scale = 2, name = "average_rating")
     private BigDecimal averageRating = BigDecimal.ZERO;
 
     private Integer reviewCount = 0;
