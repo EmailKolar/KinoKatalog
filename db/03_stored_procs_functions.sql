@@ -6,10 +6,10 @@ DELIMITER $$
 -- STORED FUNCTIONS
 
 CREATE FUNCTION get_avg_rating(p_movie_id INT)
-RETURNS DECIMAL(3,2)
+RETURNS DECIMAL(4,2)
 DETERMINISTIC
 BEGIN
-  DECLARE avg_rating DECIMAL(3,2);
+  DECLARE avg_rating DECIMAL(4,2);
   SELECT ROUND(AVG(rating), 2)
   INTO avg_rating
   FROM reviews
@@ -46,7 +46,7 @@ END $$
 
 CREATE PROCEDURE update_movie_avg_rating(IN p_movie_id INT)
 BEGIN
-  DECLARE new_avg DECIMAL(3,2);
+  DECLARE new_avg DECIMAL(4,2);
   SELECT get_avg_rating(p_movie_id) INTO new_avg;
   UPDATE movies SET average_rating = new_avg WHERE id = p_movie_id;
 END $$

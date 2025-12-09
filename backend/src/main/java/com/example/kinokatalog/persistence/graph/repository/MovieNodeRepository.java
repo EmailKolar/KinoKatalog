@@ -5,6 +5,7 @@ import com.example.kinokatalog.persistence.sql.entity.MovieGenreEntity;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
+import java.util.List;
 
 import java.util.Optional;
 
@@ -15,5 +16,10 @@ public interface MovieNodeRepository extends Neo4jRepository<MovieNode, Long> {
 
     @Query("MATCH (m:Movie {tmdbId: $tmdbId}) RETURN m")
     MovieNode findNodeOnlyByTmdbId(@Param("tmdbId") Integer tmdbId);
+
+    @Query("MATCH (m:Movie) RETURN m LIMIT 100")
+    List<MovieNode> findSomeMovies();
+
+
 
 }
