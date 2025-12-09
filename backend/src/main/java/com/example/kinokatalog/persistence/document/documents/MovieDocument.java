@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
@@ -28,6 +29,8 @@ public class MovieDocument {
     private ObjectId id;
 
     private Integer tmdbId;
+
+    @Indexed
     private String title;
     private String overview;
     private LocalDate releaseDate;
@@ -40,7 +43,9 @@ public class MovieDocument {
     private LocalDateTime createdAt;
 
     // Embedded lists for fast movie reads
+    @Indexed
     private List<String> genres;
+    @Indexed
     private List<String> tags;
     private List<CastMember> cast;
     private List<CrewMember> crew;

@@ -87,6 +87,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/me").authenticated()
                         .requestMatchers("/api/users/{id}").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/users/upload").authenticated()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/mongo/**").permitAll()
+                        .requestMatchers("/api/mongo/detail/**").permitAll()
                         .anyRequest().authenticated()
                 );
         http.addFilterAfter(csrfCookieFilter(), CsrfFilter.class);
@@ -115,7 +118,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+        //config.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+        config.setAllowedOriginPatterns(Arrays.asList("*"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.addAllowedHeader("*");
         config.setAllowCredentials(true); // Critical for cookies!

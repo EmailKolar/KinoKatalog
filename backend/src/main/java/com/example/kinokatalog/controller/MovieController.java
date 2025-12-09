@@ -32,7 +32,6 @@ public class MovieController {
         return ResponseEntity.ok(movie);
     }
 
-    //TODO input validation
     @PostMapping
     public ResponseEntity<MovieDTO> createMovie(@Valid @RequestBody MovieDTO movieDTO) {
         movieDTO.setTitle(StringEscapeUtils.escapeHtml4(movieDTO.getTitle()));
