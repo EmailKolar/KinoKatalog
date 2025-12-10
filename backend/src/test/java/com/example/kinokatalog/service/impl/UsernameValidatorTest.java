@@ -1,69 +1,57 @@
 package com.example.kinokatalog.service.impl;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.*;
+import java.util.stream.Stream;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class UsernameValidatorTest {
 
-    private final UserServiceSqlImpl service = new UserServiceSqlImpl(null, null);
+    private UserServiceSqlImpl service;
 
-    @Test
-    void length1_invalid() {
-        assertFalse(service.isValidUsername("a"));
+    @BeforeEach
+    void setup() {
+        service = new UserServiceSqlImpl(null, null);
     }
 
-    @Test
-    void length2_invalid() {
-        assertFalse(service.isValidUsername("ab"));
+    static Stream<String> validUsernames() {
+        return Stream.of(
+                "abc",
+                "abcd",
+                "a".repeat(19),
+                "a".repeat(20),
+                "user_name-123",
+                "A_B-C9"
+        );
     }
 
-    @Test
-    void length3_valid() {
-        assertTrue(service.isValidUsername("abc"));
+    @ParameterizedTest
+    @MethodSource("validUsernames")
+    void validUsernames_pass(String username) {
+        assertTrue(service.isValidUsername(username));
     }
 
-    @Test
-    void length4_valid() {
-        assertTrue(service.isValidUsername("abcd"));
+    static Stream<Arguments> invalidUsernames() {
+        return Stream.of(
+                Arguments.of("a", "length1"),
+                Arguments.of("ab", "length2"),
+                Arguments.of("a".repeat(21), "length21"),
+                Arguments.of("a".repeat(22), "length22"),
+                Arguments.of("abcd efg", "contains space"),
+                Arguments.of(" abc", "leading space"),
+                Arguments.of("abc ", "trailing space"),
+                Arguments.of("ab$cd", "illegal char $"),
+                Arguments.of("abc.def", "dot not allowed"),
+                Arguments.of(".", "dot only"),
+                Arguments.of(null, "null")
+        );
     }
 
-    @Test
-    void length19_valid() {
-        assertTrue(service.isValidUsername("a".repeat(19)));
-    }
-
-    @Test
-    void length20_valid() {
-        assertTrue(service.isValidUsername("a".repeat(20)));
-    }
-
-    @Test
-    void length21_invalid() {
-        assertFalse(service.isValidUsername("a".repeat(21)));
-    }
-
-    @Test
-    void length22_invalid() {
-        assertFalse(service.isValidUsername("a".repeat(22)));
-    }
-
-    @Test
-    void illegalCharacters_invalid() {
-        assertFalse(service.isValidUsername("abcd efg"));
-    }
-
-    @Test
-    void leadingSpace_invalid() {
-        assertFalse(service.isValidUsername(" abc"));
-    }
-
-    @Test
-    void trailingSpace_invalid() {
-        assertFalse(service.isValidUsername("abc "));
-    }
-
-    @Test
-    void validSpecialCharacters() {
-        assertTrue(service.isValidUsername("user_name-123"));
+    @ParameterizedTest(name = "Invalid: {1}")
+    @MethodSource("invalidUsernames")
+    void invalidUsernames_fail(String username, String label) {
+        assertFalse(service.isValidUsername(username));
     }
 }

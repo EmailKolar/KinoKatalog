@@ -12,9 +12,13 @@ import com.example.kinokatalog.persistence.sql.repository.UserSqlRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.*;
+
 import org.mockito.*;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -48,16 +52,50 @@ class CommentServiceSqlImplTest {
         return c;
     }
 
-    @Test
-    void validComment_success() {
+
+    // Parameterized VALID text tests
+
+    static Stream<String> validTextProvider() {
+        return Stream.of(
+                "a",
+                "a".repeat(1999),
+                "a".repeat(2000)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("validTextProvider")
+    void validCommentTexts_success(String text) {
         when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
         when(reviewRepo.findById(100)).thenReturn(Optional.of(review));
         when(commentRepo.save(any())).thenReturn(savedComment());
 
-        CommentEntity result = service.addCommentToReview(100, "Nice review!", "alice");
-
-        assertEquals(999, result.getId());
+        assertDoesNotThrow(() ->
+                service.addCommentToReview(100, text, "alice"));
     }
+
+    // Parameterized INVALID text tests (EP + BVA)
+
+    static Stream<Arguments> invalidTextProvider() {
+        return Stream.of(
+                Arguments.of("", "Empty"),
+                Arguments.of(null, "Null"),
+                Arguments.of("a".repeat(2001), "Too long"),
+                Arguments.of("bad" + '\u0001', "Control char")
+        );
+    }
+
+    @ParameterizedTest(name = "{1} text should be invalid")
+    @MethodSource("invalidTextProvider")
+    void invalidTexts_throwException(String text, String caseName) {
+        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
+        when(reviewRepo.findById(100)).thenReturn(Optional.of(review));
+
+        assertThrows(InvalidDataException.class,
+                () -> service.addCommentToReview(100, text, "alice"));
+    }
+
+    // NON-parameterized tests (logic ordering)
 
     @Test
     void userNotFound_unauthorized() {
@@ -72,66 +110,6 @@ class CommentServiceSqlImplTest {
         when(reviewRepo.findById(100)).thenReturn(Optional.empty());
         assertThrows(NotFoundException.class,
                 () -> service.addCommentToReview(100, "Valid comment", "alice"));
-    }
-
-    @Test
-    void emptyCommentText_invalid() {
-        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(reviewRepo.findById(100)).thenReturn(Optional.of(review));
-        assertThrows(InvalidDataException.class,
-                () -> service.addCommentToReview(100, "", "alice"));
-    }
-
-    @Test
-    void nullCommentText_invalid() {
-        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(reviewRepo.findById(100)).thenReturn(Optional.of(review));
-        assertThrows(InvalidDataException.class,
-                () -> service.addCommentToReview(100, null, "alice"));
-    }
-
-    @Test
-    void textLength1_valid() {
-        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(reviewRepo.findById(100)).thenReturn(Optional.of(review));
-        when(commentRepo.save(any())).thenReturn(savedComment());
-        assertDoesNotThrow(() ->
-                service.addCommentToReview(100, "a", "alice"));
-    }
-
-    @Test
-    void textLength1999_valid() {
-        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(reviewRepo.findById(100)).thenReturn(Optional.of(review));
-        when(commentRepo.save(any())).thenReturn(savedComment());
-        assertDoesNotThrow(() ->
-                service.addCommentToReview(100, "a".repeat(1999), "alice"));
-    }
-
-    @Test
-    void textLength2000_valid() {
-        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(reviewRepo.findById(100)).thenReturn(Optional.of(review));
-        when(commentRepo.save(any())).thenReturn(savedComment());
-        assertDoesNotThrow(() ->
-                service.addCommentToReview(100, "a".repeat(2000), "alice"));
-    }
-
-    @Test
-    void textLength2001_invalid() {
-        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(reviewRepo.findById(100)).thenReturn(Optional.of(review));
-        assertThrows(InvalidDataException.class,
-                () -> service.addCommentToReview(100, "a".repeat(2001), "alice"));
-    }
-
-    @Test
-    void unsafeCharacters_invalid() {
-        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(reviewRepo.findById(100)).thenReturn(Optional.of(review));
-        String text = "Nice" + '\u0001';
-        assertThrows(InvalidDataException.class,
-                () -> service.addCommentToReview(100, text, "alice"));
     }
 
     @Test

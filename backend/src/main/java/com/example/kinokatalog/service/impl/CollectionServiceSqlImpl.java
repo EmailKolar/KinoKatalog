@@ -1,6 +1,9 @@
 package com.example.kinokatalog.service.impl;
 
 import com.example.kinokatalog.dto.CollectionDTO;
+import com.example.kinokatalog.exception.InvalidDataException;
+import com.example.kinokatalog.exception.NotFoundException;
+import com.example.kinokatalog.exception.UnauthorizedException;
 import com.example.kinokatalog.mapper.CollectionMapper;
 
 import com.example.kinokatalog.persistence.sql.entity.MovieEntity;
@@ -20,7 +23,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class CollectionServiceSqlImpl implements CollectionService {
+public class CollectionServiceSqlImpl{
 
     private final CollectionSqlRepository collectionRepo;
     private final CollectionMovieSqlRepository collectionMovieRepo;
@@ -29,7 +32,7 @@ public class CollectionServiceSqlImpl implements CollectionService {
     private final CollectionMapper mapper;
 
 
-    @Override
+
     public CollectionDTO getCollectionById(Integer id) {
 
         CollectionEntity entity = collectionRepo.findById(id)
@@ -49,27 +52,66 @@ public class CollectionServiceSqlImpl implements CollectionService {
     }
 
 
-    @Override
-    public CollectionDTO createCollection(CollectionDTO dto) {
+    public CollectionDTO createCollection(Integer userId, String name, String description, String authenticatedUsername) {
 
-        if (collectionRepo.existsByUserIdAndName(dto.getUserId(), dto.getName())) {
-            throw new IllegalArgumentException("Collection with that name already exists for this user.");
+        // 1. Validate userId
+        if (userId == null || userId < 1) {
+            throw new UnauthorizedException("Invalid userId");
         }
 
-        UserEntity user = userRepo.findById(dto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        // 2. Fetch user
+        UserEntity user = userRepo.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
+        // 3. Authenticated user must match owner
+        if (!user.getUsername().equals(authenticatedUsername)) {
+            throw new UnauthorizedException("Not allowed to create collection for another user");
+        }
+
+        // 4. Validate name (non-null, non-empty, ≤100, safe chars)
+        if (name == null || name.isBlank()) {
+            throw new InvalidDataException("Name cannot be null or empty");
+        }
+        if (name.length() > 100) {
+            throw new InvalidDataException("Name too long");
+        }
+        if (containsUnsafeChars(name)) {
+            throw new InvalidDataException("Name contains invalid characters");
+        }
+
+        // 5. Validate description
+        if (description != null) {
+            if (description.length() > 4000) {
+                throw new InvalidDataException("Description too long");
+            }
+            if (containsUnsafeChars(description)) {
+                throw new InvalidDataException("Description contains invalid characters");
+            }
+        }
+
+        // 6. Check duplicate
+        if (collectionRepo.existsByUserIdAndName(userId, name)) {
+            throw new InvalidDataException("Collection name already exists");
+        }
+
+        // 7. Create entity
         CollectionEntity entity = new CollectionEntity();
-        entity.setUser(user);                 // <-- FIXED
-        entity.setName(dto.getName());
-        entity.setDescription(dto.getDescription());
+        entity.setUser(user);
+        entity.setName(name);
+        entity.setDescription(description);
 
         CollectionEntity saved = collectionRepo.save(entity);
-
         return mapper.toDTO(saved);
     }
 
-    @Override
+    private boolean containsUnsafeChars(String s) {
+        for (char c : s.toCharArray()) {
+            if (c <= 31 || c == 127) return true;
+        }
+        return false;
+    }
+
+
     public CollectionDTO updateCollection(Integer id, CollectionDTO dto) {
         CollectionEntity entity = collectionRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Collection not found"));
@@ -80,13 +122,13 @@ public class CollectionServiceSqlImpl implements CollectionService {
         return mapper.toDTO(collectionRepo.save(entity));
     }
 
-    @Override
+
     public void deleteCollection(Integer id) {
         collectionMovieRepo.deleteByCollectionId(id);
         collectionRepo.deleteById(id);
     }
 
-    @Override
+
     public void addMovieToCollection(Integer collectionId, Integer movieId) {
 
         if (collectionMovieRepo.existsByCollectionIdAndMovieId(collectionId, movieId)) {
@@ -106,13 +148,13 @@ public class CollectionServiceSqlImpl implements CollectionService {
         collectionMovieRepo.save(join);
     }
 
-    @Override
+
     public void removeMovieFromCollection(Integer collectionId, Integer movieId) {
         collectionMovieRepo.deleteByCollectionIdAndMovieId(collectionId, movieId);
     }
 
 
-    @Override
+
     public List<CollectionDTO> getCollectionsByUser(Integer userId) {
         return collectionRepo.findByUserId(userId).stream()
                 .map(mapper::toDTO)

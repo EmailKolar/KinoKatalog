@@ -82,7 +82,7 @@ public class UserServiceSqlImpl {
         if (local.length() > 64) return false;
         if (email.contains("..")) return false;
 
-        // Simple allowed chars (your regex)
+        // Simple allowed chars
         if (!email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+$"))
             return false;
 
