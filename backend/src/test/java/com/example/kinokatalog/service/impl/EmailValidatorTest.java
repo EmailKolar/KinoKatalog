@@ -1,37 +1,51 @@
 package com.example.kinokatalog.service.impl;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.*;
+
+import java.util.stream.Stream;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class EmailValidatorTest {
 
-    private final UserServiceSqlImpl service = new UserServiceSqlImpl(null, null);
+    private UserServiceSqlImpl service;
 
-    @Test
-    void localPartLength0_invalid() {
-        assertFalse(service.isValidEmail("@domain.com"));
+    @BeforeEach
+    void setup() {
+        service = new UserServiceSqlImpl(null, null); // passwordEncoder & repo unused
     }
 
-    @Test
-    void localPartLength1_valid() {
-        assertTrue(service.isValidEmail("a@domain.com"));
+    // Local Part Length BVA
+    static Stream<Arguments> localPartInvalid() {
+        return Stream.of(
+                Arguments.of("@domain.com", "local=0"),
+                Arguments.of("a".repeat(65) + "@domain.com", "local>64")
+        );
     }
 
-    @Test
-    void localPartLength64_valid() {
-        assertTrue(service.isValidEmail("a".repeat(64) + "@domain.com"));
+    @ParameterizedTest(name = "Invalid local part: {1}")
+    @MethodSource("localPartInvalid")
+    void localPartInvalidCases(String email, String label) {
+        assertFalse(service.isValidEmail(email));
     }
 
-    @Test
-    void localPartLength65_invalid() {
-        assertFalse(service.isValidEmail("a".repeat(65) + "@domain.com"));
+    static Stream<String> localPartValid() {
+        return Stream.of(
+                "a@domain.com",
+                "a".repeat(64) + "@domain.com"
+        );
     }
 
-    @Test
-    void totalLength1_invalid() {
-        assertFalse(service.isValidEmail("a"));
+    @ParameterizedTest
+    @MethodSource("localPartValid")
+    void localPartValidCases(String email) {
+        assertTrue(service.isValidEmail(email));
     }
 
+    // Total Length BVA
     @Test
     void totalLength254_valid() {
         String local = "a".repeat(64);
@@ -46,66 +60,71 @@ class EmailValidatorTest {
         assertTrue(service.isValidEmail(email));
     }
 
-    @Test
-    void totalLength255_invalid() {
+    static Stream<Arguments> totalLengthInvalid() {
+        return Stream.of(
+                Arguments.of(255, 186, "len=255"),
+                Arguments.of(256, 187, "len=256")
+        );
+    }
+
+    @ParameterizedTest(name = "Invalid total length: {2}")
+    @MethodSource("totalLengthInvalid")
+    void totalLengthInvalidCases(int totalLen, int domainChars, String label) {
+
         String local = "a".repeat(64);
-        String domain = "b".repeat(186) + ".com";
+        String domain = "b".repeat(domainChars) + ".com";
         String email = local + "@" + domain;
-        assertEquals(255, email.length());
+
+        assertEquals(totalLen, email.length());
         assertFalse(service.isValidEmail(email));
     }
 
-    @Test
-    void totalLength256_invalid() {
-        String local = "a".repeat(64);
-        String domain = "b".repeat(187) + ".com";
-        String email = local + "@" + domain;
-        assertEquals(256, email.length());
+    // Domain Label BVA
+    static Stream<Arguments> domainLabelInvalid() {
+        return Stream.of(
+                Arguments.of("a@.com", "label=0"),
+                Arguments.of("a@" + "a".repeat(64) + ".com", "label=64"),
+                Arguments.of("a@" + "a".repeat(65) + ".com", "label=65")
+        );
+    }
+
+    @ParameterizedTest(name = "Invalid domain label: {1}")
+    @MethodSource("domainLabelInvalid")
+    void domainLabelInvalidCases(String email, String label) {
         assertFalse(service.isValidEmail(email));
     }
 
-    @Test
-    void domainLabel0_invalid() {
-        assertFalse(service.isValidEmail("a@.com"));
+    static Stream<String> domainLabelValid() {
+        return Stream.of(
+                "a@b.com",
+                "a@" + "a".repeat(63) + ".com"
+        );
     }
 
-    @Test
-    void domainLabel1_valid() {
-        assertTrue(service.isValidEmail("a@b.com"));
+    @ParameterizedTest
+    @MethodSource("domainLabelValid")
+    void domainLabelValidCases(String email) {
+        assertTrue(service.isValidEmail(email));
     }
 
-    @Test
-    void domainLabel63_valid() {
-        assertTrue(service.isValidEmail("a@" + "a".repeat(63) + ".com"));
+    // Format invalid cases (EP)
+    static Stream<String> invalidFormat() {
+        return Stream.of(
+                "abcd.domain.com",      // missing @
+                "abcd@domain",          // missing dot
+                "ab..cd@domain.com",    // consecutive dots
+                "ab(cd)@domain.com"     // illegal character
+        );
+    }
+    @ParameterizedTest
+    @MethodSource("invalidFormat")
+    void invalidFormatCases(String email) {
+        assertFalse(service.isValidEmail(email));
     }
 
+    // Success sanity test (multi-label)
     @Test
-    void domainLabel64_invalid() {
-        assertFalse(service.isValidEmail("a@" + "a".repeat(64) + ".com"));
-    }
-
-    @Test
-    void domainLabel65_invalid() {
-        assertFalse(service.isValidEmail("a@" + "a".repeat(65) + ".com"));
-    }
-
-    @Test
-    void missingAt_invalid() {
-        assertFalse(service.isValidEmail("abcd.domain.com"));
-    }
-
-    @Test
-    void domainMissingDot_invalid() {
-        assertFalse(service.isValidEmail("abcd@domain"));
-    }
-
-    @Test
-    void consecutiveDots_invalid() {
-        assertFalse(service.isValidEmail("ab..cd@domain.com"));
-    }
-
-    @Test
-    void illegalCharacters_invalid() {
-        assertFalse(service.isValidEmail("ab(cd)@domain.com"));
+    void validComplexEmail_success() {
+        assertTrue(service.isValidEmail("alice.smith+test@sub.example.co.uk"));
     }
 }

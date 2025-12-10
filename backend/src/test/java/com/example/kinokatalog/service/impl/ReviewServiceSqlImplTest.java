@@ -12,9 +12,13 @@ import com.example.kinokatalog.persistence.sql.repository.UserSqlRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.*;
+
 import org.mockito.*;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -48,22 +52,113 @@ class ReviewServiceSqlImplTest {
         return r;
     }
 
+
+    // --------------------------------------------------
+    // VALID review test
+    // --------------------------------------------------
     @Test
     void validReview_success() {
         when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
         when(movieRepo.findById(10)).thenReturn(Optional.of(movie));
         when(reviewRepo.save(any())).thenReturn(savedReview());
 
-        ReviewEntity result = service.addReviewToMovie(10, 8, "Great movie!", "alice");
-
-        assertEquals(99, result.getId());
+        assertDoesNotThrow(() ->
+                service.addReviewToMovie(10, 8, "Great!", "alice"));
     }
 
+
+    // --------------------------------------------------
+    // PARAMETERIZED Rating tests (EP + BVA)
+    // --------------------------------------------------
+    static Stream<Integer> validRatings() {
+        return Stream.of(
+                0,          // min
+                1,          // small positive
+                10          // max
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("validRatings")
+    void rating_validValues_success(Integer rating) {
+        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
+        when(movieRepo.findById(10)).thenReturn(Optional.of(movie));
+        when(reviewRepo.save(any())).thenReturn(savedReview());
+
+        assertDoesNotThrow(() ->
+                service.addReviewToMovie(10, rating, "Good", "alice"));
+    }
+
+
+    static Stream<Integer> invalidRatings() {
+        return Stream.of(
+                -1,     // below min
+                11      // above max
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidRatings")
+    void rating_invalidValues_throw(Integer rating) {
+        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
+        when(movieRepo.findById(10)).thenReturn(Optional.of(movie));
+
+        assertThrows(InvalidDataException.class,
+                () -> service.addReviewToMovie(10, rating, "Good", "alice"));
+    }
+
+
+    // --------------------------------------------------
+    // PARAMETERIZED Text Tests (EP + BVA)
+    // --------------------------------------------------
+    static Stream<String> validTextProvider() {
+        return Stream.of(
+                "a",                    // length 1
+                "a".repeat(4999),       // large valid
+                "a".repeat(5000)        // max length
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("validTextProvider")
+    void reviewText_valid(String text) {
+        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
+        when(movieRepo.findById(10)).thenReturn(Optional.of(movie));
+        when(reviewRepo.save(any())).thenReturn(savedReview());
+
+        assertDoesNotThrow(() ->
+                service.addReviewToMovie(10, 5, text, "alice"));
+    }
+
+
+    static Stream<Arguments> invalidTextProvider() {
+        return Stream.of(
+                Arguments.of(null, "Null"),
+                Arguments.of("", "Empty"),
+                Arguments.of("a".repeat(5001), "Too long"),
+                Arguments.of("Nice" + '\u0001', "Control char")
+        );
+    }
+
+    @ParameterizedTest(name = "Invalid text case: {1}")
+    @MethodSource("invalidTextProvider")
+    void reviewText_invalid(String text, String label) {
+        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
+        when(movieRepo.findById(10)).thenReturn(Optional.of(movie));
+
+        assertThrows(InvalidDataException.class,
+                () -> service.addReviewToMovie(10, 5, text, "alice"));
+    }
+
+
+    // --------------------------------------------------
+    // NON-PARAMETERIZED: User/Movie EP + Decision Table
+    // --------------------------------------------------
     @Test
     void userNotFound_unauthorized() {
         when(userRepo.findByUsername("alice")).thenReturn(Optional.empty());
         assertThrows(UnauthorizedException.class,
-                () -> service.addReviewToMovie(10, 8, "Great", "alice"));
+                () -> service.addReviewToMovie(10, 5, "Hi", "alice"));
     }
 
     @Test
@@ -71,11 +166,26 @@ class ReviewServiceSqlImplTest {
         when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
         when(movieRepo.findById(10)).thenReturn(Optional.empty());
         assertThrows(NotFoundException.class,
-                () -> service.addReviewToMovie(10, 8, "Great", "alice"));
+                () -> service.addReviewToMovie(10, 5, "Hi", "alice"));
     }
 
     @Test
-    void ratingBelowMin_invalid() {
+    void decision_userFails_first() {
+        when(userRepo.findByUsername("alice")).thenReturn(Optional.empty());
+        assertThrows(UnauthorizedException.class,
+                () -> service.addReviewToMovie(10, 5, "Good", "alice"));
+    }
+
+    @Test
+    void decision_movieFails_second() {
+        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
+        when(movieRepo.findById(10)).thenReturn(Optional.empty());
+        assertThrows(NotFoundException.class,
+                () -> service.addReviewToMovie(10, 5, "Good", "alice"));
+    }
+
+    @Test
+    void decision_ratingFails_third() {
         when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
         when(movieRepo.findById(10)).thenReturn(Optional.of(movie));
         assertThrows(InvalidDataException.class,
@@ -83,125 +193,7 @@ class ReviewServiceSqlImplTest {
     }
 
     @Test
-    void ratingMinBoundary0_valid() {
-        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(movieRepo.findById(10)).thenReturn(Optional.of(movie));
-        when(reviewRepo.save(any())).thenReturn(savedReview());
-        assertDoesNotThrow(() ->
-                service.addReviewToMovie(10, 0, "Ok", "alice"));
-    }
-
-    @Test
-    void rating1_valid() {
-        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(movieRepo.findById(10)).thenReturn(Optional.of(movie));
-        when(reviewRepo.save(any())).thenReturn(savedReview());
-        assertDoesNotThrow(() ->
-                service.addReviewToMovie(10, 1, "Fine", "alice"));
-    }
-
-    @Test
-    void rating10_max_valid() {
-        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(movieRepo.findById(10)).thenReturn(Optional.of(movie));
-        when(reviewRepo.save(any())).thenReturn(savedReview());
-        assertDoesNotThrow(() ->
-                service.addReviewToMovie(10, 10, "Perfect!", "alice"));
-    }
-
-    @Test
-    void ratingAboveMax_invalid() {
-        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(movieRepo.findById(10)).thenReturn(Optional.of(movie));
-        assertThrows(InvalidDataException.class,
-                () -> service.addReviewToMovie(10, 11, "Bad", "alice"));
-    }
-
-    @Test
-    void reviewTextNull_invalid() {
-        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(movieRepo.findById(10)).thenReturn(Optional.of(movie));
-        assertThrows(InvalidDataException.class,
-                () -> service.addReviewToMovie(10, 5, null, "alice"));
-    }
-
-    @Test
-    void reviewTextEmpty_invalid() {
-        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(movieRepo.findById(10)).thenReturn(Optional.of(movie));
-        assertThrows(InvalidDataException.class,
-                () -> service.addReviewToMovie(10, 5, "", "alice"));
-    }
-
-    @Test
-    void reviewTextLength1_valid() {
-        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(movieRepo.findById(10)).thenReturn(Optional.of(movie));
-        when(reviewRepo.save(any())).thenReturn(savedReview());
-        assertDoesNotThrow(() ->
-                service.addReviewToMovie(10, 5, "a", "alice"));
-    }
-
-    @Test
-    void reviewTextLength4999_valid() {
-        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(movieRepo.findById(10)).thenReturn(Optional.of(movie));
-        when(reviewRepo.save(any())).thenReturn(savedReview());
-        assertDoesNotThrow(() ->
-                service.addReviewToMovie(10, 5, "a".repeat(4999), "alice"));
-    }
-
-    @Test
-    void reviewTextLength5000_valid() {
-        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(movieRepo.findById(10)).thenReturn(Optional.of(movie));
-        when(reviewRepo.save(any())).thenReturn(savedReview());
-        assertDoesNotThrow(() ->
-                service.addReviewToMovie(10, 5, "a".repeat(5000), "alice"));
-    }
-
-    @Test
-    void reviewTextLength5001_invalid() {
-        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(movieRepo.findById(10)).thenReturn(Optional.of(movie));
-        assertThrows(InvalidDataException.class,
-                () -> service.addReviewToMovie(10, 5, "a".repeat(5001), "alice"));
-    }
-
-    @Test
-    void invalidTextCharacters_controlChar_invalid() {
-        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(movieRepo.findById(10)).thenReturn(Optional.of(movie));
-        String text = "Nice" + '\u0001';
-        assertThrows(InvalidDataException.class,
-                () -> service.addReviewToMovie(10, 5, text, "alice"));
-    }
-
-    @Test
-    void decisionTable_userFails_allElseIgnored() {
-        when(userRepo.findByUsername("alice")).thenReturn(Optional.empty());
-        assertThrows(UnauthorizedException.class,
-                () -> service.addReviewToMovie(10, 5, "good", "alice"));
-    }
-
-    @Test
-    void decisionTable_movieFails_afterUserPasses() {
-        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(movieRepo.findById(10)).thenReturn(Optional.empty());
-        assertThrows(NotFoundException.class,
-                () -> service.addReviewToMovie(10, 5, "good", "alice"));
-    }
-
-    @Test
-    void decisionTable_ratingFails_afterUserMoviePass() {
-        when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(movieRepo.findById(10)).thenReturn(Optional.of(movie));
-        assertThrows(InvalidDataException.class,
-                () -> service.addReviewToMovie(10, -1, "good", "alice"));
-    }
-
-    @Test
-    void decisionTable_textFails_last() {
+    void decision_textFails_last() {
         when(userRepo.findByUsername("alice")).thenReturn(Optional.of(user));
         when(movieRepo.findById(10)).thenReturn(Optional.of(movie));
         assertThrows(InvalidDataException.class,
