@@ -42,6 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (identifier: string, password: string) => {
     // No need to handle token - cookie is set automatically by backend
     await axiosInstance.post("auth/login", { identifier, password });
+    await axiosInstance.get("/csrf"); 
     
     // Fetch user data after successful login
     await refresh();

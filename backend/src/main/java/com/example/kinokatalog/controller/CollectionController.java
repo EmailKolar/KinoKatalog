@@ -3,7 +3,9 @@ package com.example.kinokatalog.controller;
 
 import com.example.kinokatalog.dto.CollectionDTO;
 import com.example.kinokatalog.service.CollectionService;
+import com.example.kinokatalog.service.impl.CollectionServiceSqlImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,12 +16,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CollectionController {
 
-    private final CollectionService collectionService;
+    @Autowired
+    private final CollectionServiceSqlImpl collectionService;
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public CollectionDTO create(@RequestBody CollectionDTO dto) {
-        return collectionService.createCollection(dto);
+        return collectionService.createCollection(dto.getUserId(), dto.getName(), dto.getDescription(), dto.getUsername());
     }
 
     @PutMapping("/{id}")

@@ -6,6 +6,8 @@ export const axiosInstance = axios.create({
   withCredentials: true, // CRITICAL: This sends cookies automatically
 });
 
+
+
 // Helper to get CSRF token from cookie
 function getCsrfToken(): string | null {
   const name = "XSRF-TOKEN=";

@@ -1,7 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
-import ApiClient from "../../services/api-client";
 import { Movie } from "./movie";
 import { useQueryClient } from "@tanstack/react-query";
+import { axiosInstance } from "../../services/api-client";
+
 
 export interface MovieCreate {
   title: string;
@@ -12,12 +13,12 @@ export interface MovieCreate {
   posterUrl?: string;
 }
 
-const api = new ApiClient<Movie>("movies");
+//const api = new ApiClient<Movie>("movies");
 
 const useAddMovie = () => {
   const qc = useQueryClient();
   return useMutation<Movie, Error, MovieCreate>({
-    mutationFn: (payload) => api.post(payload),
+    mutationFn: (payload) => axiosInstance.post("/movies",payload),
     onSuccess: () => qc.invalidateQueries(["movies"]),
   });
 };

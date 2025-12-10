@@ -1,13 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import ApiClient from "../../services/api-client";
-import { Movie } from "./movie";
+import { axiosInstance } from "../../services/api-client";
 
-const api = new ApiClient<Movie>("movies");
+
+
 
 const useDeleteMovie = () => {
   const qc = useQueryClient();
   return useMutation<void, Error, number>({
-    mutationFn: (id) => api.delete(id).then(() => undefined),
+    mutationFn: (id) => axiosInstance.delete(`/movies/${id}`).then(() => undefined),
     onSuccess: () => qc.invalidateQueries(["movies"]),
   });
 };
