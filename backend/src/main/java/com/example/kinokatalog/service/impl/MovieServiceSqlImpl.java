@@ -1,6 +1,7 @@
 package com.example.kinokatalog.service.impl;
 
 import com.example.kinokatalog.dto.MovieDTO;
+import com.example.kinokatalog.exception.NotFoundException;
 import com.example.kinokatalog.mapper.MovieMapper;
 import com.example.kinokatalog.persistence.sql.entity.MovieEntity;
 import com.example.kinokatalog.persistence.sql.repository.MovieSqlRepository;
@@ -30,7 +31,7 @@ public class MovieServiceSqlImpl implements MovieService {
     public MovieDTO getMovieById(Integer id) {
         return movieRepository.findById(id)
                 .map(MovieMapper::toDTO)
-                .orElseThrow(() -> new RuntimeException("Movie not found"));
+                .orElseThrow(() -> new NotFoundException("Movie not found"));
     }
 
     @Override
