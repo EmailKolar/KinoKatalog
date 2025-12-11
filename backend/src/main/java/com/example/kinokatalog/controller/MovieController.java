@@ -2,6 +2,7 @@ package com.example.kinokatalog.controller;
 
 
 import com.example.kinokatalog.dto.MovieDTO;
+import com.example.kinokatalog.exception.NotFoundException;
 import com.example.kinokatalog.service.MovieService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,12 @@ public class MovieController {
     }
     @GetMapping("/{id}")
     public ResponseEntity<MovieDTO> getMovieById(@PathVariable Integer id) {
-        MovieDTO movie = movieService.getMovieById(id);
+        MovieDTO movie = null;
+        try {
+            movie = movieService.getMovieById(id);
+        } catch (NotFoundException ex) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
         return ResponseEntity.ok(movie);
     }
 
@@ -44,7 +50,12 @@ public class MovieController {
 
     @PutMapping("/{id}")
     public ResponseEntity<MovieDTO> updateMovie(@PathVariable Integer id, @RequestBody MovieDTO updatedMovie) {
-        MovieDTO existing = movieService.getMovieById(id);
+        MovieDTO existing = null;
+        try {
+            existing = movieService.getMovieById(id);
+        } catch (NotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
 
         // overwrite editable fields
         existing.setTitle(updatedMovie.getTitle());
@@ -53,7 +64,8 @@ public class MovieController {
         existing.setReleaseDate(updatedMovie.getReleaseDate());
         existing.setPosterUrl(updatedMovie.getPosterUrl());
 
-        MovieDTO saved = movieService.createMovie(existing); // re-use save logic
+        MovieDTO saved = movieService.createMovie(existing);
+
         return ResponseEntity.ok(saved);
     }
 
