@@ -38,19 +38,13 @@ public class ReviewController {
     @PostMapping(path = "/movie/{movieId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ReviewDTO> createReviewForMovie(
             @PathVariable Integer movieId,
-            @RequestBody CreateReviewRequest req,
-            Authentication authentication) {
-
-        if (authentication == null || authentication.getName() == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
+            @RequestBody CreateReviewRequest req) {
         try {
             ReviewEntity saved = reviewServiceSqlImpl.addReviewToMovie(
                     movieId,
                     req.getRating(),
                     req.getReviewText(),
-                    authentication.getName()
+                    req.getUsername()
             );
 
             return ResponseEntity.status(HttpStatus.CREATED)

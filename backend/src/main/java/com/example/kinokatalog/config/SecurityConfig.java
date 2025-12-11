@@ -45,11 +45,12 @@ public class SecurityConfig {
 
         http
                 // Enable CSRF protection with cookies
-                .csrf(csrf -> csrf
+               /* .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                         .ignoringRequestMatchers("/api/auth/login", "/api/users/register")
-                )
+                )*/
+                .csrf(csrf -> csrf.disable())
                 .addFilterAfter(csrfCookieFilter(), CsrfFilter.class)
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(
@@ -76,7 +77,7 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                    /*    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/movies/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/movies/**").hasRole("ADMIN")
@@ -91,7 +92,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/mongo/**").permitAll()
                         .requestMatchers("/api/mongo/detail/**").permitAll()
                         .requestMatchers("/api/neo/movies/**").permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().authenticated()*/
+                        .anyRequest().permitAll()
                 );
         http.addFilterAfter(csrfCookieFilter(), CsrfFilter.class);
 

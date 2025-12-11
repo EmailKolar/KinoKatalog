@@ -6,4 +6,5 @@ import lombok.Data;
 public class CreateReviewRequest {
     private Integer rating;
     private String reviewText;
+    private String username;
 }

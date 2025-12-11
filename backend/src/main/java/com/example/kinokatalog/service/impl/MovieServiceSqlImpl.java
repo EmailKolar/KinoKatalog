@@ -44,7 +44,7 @@ public class MovieServiceSqlImpl implements MovieService {
     @Override
     public void deleteMovieById(Integer id) {
         if (!movieRepository.existsById(id)) {
-            throw new RuntimeException("Movie not found");
+            throw new NotFoundException("Movie not found");
         }
         movieRepository.deleteById(id);
     }

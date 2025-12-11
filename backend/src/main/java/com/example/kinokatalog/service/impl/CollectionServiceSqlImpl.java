@@ -22,7 +22,6 @@ import com.example.kinokatalog.persistence.sql.repository.CollectionSqlRepositor
 import java.util.*;
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class CollectionServiceSqlImpl{
 
     private final CollectionSqlRepository collectionRepo;
@@ -123,6 +122,7 @@ public class CollectionServiceSqlImpl{
     }
 
 
+    @Transactional("transactionManager")
     public void deleteCollection(Integer id) {
         collectionMovieRepo.deleteByCollectionId(id);
         collectionRepo.deleteById(id);
@@ -149,6 +149,7 @@ public class CollectionServiceSqlImpl{
     }
 
 
+    @Transactional("transactionManager")
     public void removeMovieFromCollection(Integer collectionId, Integer movieId) {
         collectionMovieRepo.deleteByCollectionIdAndMovieId(collectionId, movieId);
     }
