@@ -25,3 +25,6 @@ use basic auth (admin, adminpass) (this is temp)
 3. to see results go to localhost:8082 (mongo express)
 
 
+# Seed scripts
+
+https://github.com/EmailKolar/tmdb-data-grab 
