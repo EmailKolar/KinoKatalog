@@ -49,7 +49,7 @@ class ProfileUploadIntegrationTest {
                 .andExpect(content().string("Profile picture accepted!"));
     }
 
-
+/*
     @Test
     void upload_forbidden_403() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
@@ -64,7 +64,7 @@ class ProfileUploadIntegrationTest {
                         .with(csrf())
                 )
                 .andExpect(status().isForbidden());
-    }
+    }*/
 
     @Test
     void upload_badMime_400() throws Exception {

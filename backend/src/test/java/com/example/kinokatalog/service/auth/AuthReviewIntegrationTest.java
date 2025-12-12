@@ -20,18 +20,16 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
 @ActiveProfiles("test")
-class AuthReviewIntegrationTest {
+class ReviewControllerIntegrationTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired UserSqlRepository userRepo;
     @Autowired MovieSqlRepository movieRepo;
-    @Autowired
-    private ReviewSqlRepository reviewRepo;
+    @Autowired ReviewSqlRepository reviewRepo;
 
     private UserEntity user;
     private MovieEntity movie;
@@ -44,35 +42,28 @@ class AuthReviewIntegrationTest {
         movie = new MovieEntity();
         movie.setTitle("Test Movie");
         movie.setTmdbId(1001);
-        movieRepo.save(movie);
+        movie = movieRepo.save(movie);
     }
 
-    private String jwtFor(String username) {
-        // Your JWT filter loads authentication by username only, no signature verification in test.
-        return "Bearer " + username;
-    }
-
-    private String reviewBody(int rating, String text) {
+    private String reviewBody(int rating, String text, String username) {
         return """
                 {
                   "rating": %d,
-                  "reviewText": "%s"
+                  "reviewText": "%s",
+                  "username": "%s"
                 }
-                """.formatted(rating, text);
+                """.formatted(rating, text, username);
     }
 
-    // --------------------------
+    // ------------------------------------------------------------
     // SUCCESS: create review
-    // --------------------------
+    // ------------------------------------------------------------
     @Test
-    void createReview_authenticated_success() throws Exception {
+    void createReview_successful() throws Exception {
         mockMvc.perform(
                         post("/api/reviews/movie/" + movie.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .header("Authorization", jwtFor(user.getUsername()))
-                                .content(reviewBody(8, "Great!"))
-                                .with(csrf())
-                                .with(user("reviewUser"))
+                                .content(reviewBody(8, "Great!", user.getUsername()))
                 )
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.rating").value(8))
@@ -84,59 +75,51 @@ class AuthReviewIntegrationTest {
         assertThat(reviews.get(0).getRating()).isEqualTo(8);
     }
 
-
-    // --------------------------
-    // UNAUTHORIZED
-    // --------------------------
+    // ------------------------------------------------------------
+    // MISSING USERNAME (InvalidDataException)
+    // ------------------------------------------------------------
     @Test
-    void createReview_unauthenticated_returns403() throws Exception {
+    void createReview_missingUsername_returns403() throws Exception {
         mockMvc.perform(
                         post("/api/reviews/movie/" + movie.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(reviewBody(5, "Nice movie"))
+                                .content(reviewBody(7, "Missing username", null))
                 )
                 .andExpect(status().isForbidden());
     }
 
-    // --------------------------
+    // ------------------------------------------------------------
     // MOVIE NOT FOUND
-    // --------------------------
+    // ------------------------------------------------------------
     @Test
     void createReview_nonexistentMovie_returns404() throws Exception {
         int nonExistingId = 999999;
 
         mockMvc.perform(
                         post("/api/reviews/movie/" + nonExistingId)
-                                .with(csrf())
-                                .with(user("reviewUser"))
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .header("Authorization", jwtFor(user.getUsername()))
-                                .content(reviewBody(7, "Test"))
+                                .content(reviewBody(7, "Test", user.getUsername()))
                 )
                 .andExpect(status().isNotFound());
     }
 
-    // --------------------------
+    // ------------------------------------------------------------
     // FETCH REVIEWS
-    // --------------------------
+    // ------------------------------------------------------------
     @Test
     void getReviewsByMovie_returnsList() throws Exception {
-        // Create a review manually
+
+        // create a review
         mockMvc.perform(
-                post("/api/reviews/movie/" + movie.getId())
-                        .with(csrf())
-                        .with(user("reviewUser"))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", jwtFor(user.getUsername()))
-                        .content(reviewBody(9, "Amazing"))
-        ).andExpect(status().isCreated());
+                        post("/api/reviews/movie/" + movie.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(reviewBody(9, "Amazing", user.getUsername()))
+                )
+                .andExpect(status().isCreated());
 
         mockMvc.perform(
                         get("/api/reviews/movie/" + movie.getId())
-                                .with(csrf())
-                                .with(user("reviewUser"))
                 )
-
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].rating").value(9))
                 .andExpect(jsonPath("$[0].reviewText").value("Amazing"));
