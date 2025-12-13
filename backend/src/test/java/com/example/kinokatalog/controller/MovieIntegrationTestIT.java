@@ -1,6 +1,5 @@
 package com.example.kinokatalog.controller;
 
-import com.example.kinokatalog.dto.MovieDTO;
 import com.example.kinokatalog.persistence.sql.entity.MovieEntity;
 import com.example.kinokatalog.persistence.sql.repository.MovieSqlRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @ActiveProfiles("test")
 @Tag("integration")
-class MovieIntegrationTest {
+class MovieIntegrationTestIT {
 
     @Autowired private MockMvc mockMvc;
     @Autowired private MovieSqlRepository movieRepo;
