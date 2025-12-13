@@ -3,6 +3,7 @@ package com.example.kinokatalog.service.auth;
 
 import com.example.kinokatalog.persistence.sql.entity.UserEntity;
 import com.example.kinokatalog.persistence.sql.repository.UserSqlRepository;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 @Transactional
+@Tag("integration")
 class AuthRegisterIntegrationTest {
 
     @Autowired

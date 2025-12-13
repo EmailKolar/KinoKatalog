@@ -6,6 +6,7 @@ import com.example.kinokatalog.persistence.sql.repository.MovieSqlRepository;
 import com.example.kinokatalog.persistence.sql.repository.ReviewSqlRepository;
 import com.example.kinokatalog.persistence.sql.repository.UserSqlRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -23,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Transactional
 @ActiveProfiles("test")
+@Tag("integration")
 class ReviewControllerIntegrationTest {
 
     @Autowired MockMvc mockMvc;

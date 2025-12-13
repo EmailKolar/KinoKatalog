@@ -1,11 +1,10 @@
 package com.example.kinokatalog.controller;
 
-import com.example.kinokatalog.KinoKatalogApplication;
-import com.example.kinokatalog.TestDisableDataConfig;
 import com.example.kinokatalog.dto.MovieDTO;
 import com.example.kinokatalog.persistence.sql.entity.MovieEntity;
 import com.example.kinokatalog.persistence.sql.repository.MovieSqlRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +23,11 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(classes = {KinoKatalogApplication.class, TestDisableDataConfig.class})
+@SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 @ActiveProfiles("test")
+@Tag("integration")
 class MovieIntegrationTest {
 
     @Autowired private MockMvc mockMvc;

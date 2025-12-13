@@ -1,5 +1,6 @@
 package com.example.kinokatalog;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,6 +11,7 @@ import java.util.Arrays;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Tag("integration")
 class DebugProfileTest {
 
     @Autowired

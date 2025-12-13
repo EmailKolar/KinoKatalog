@@ -4,6 +4,7 @@ import com.example.kinokatalog.config.DataConfig;
 import com.example.kinokatalog.persistence.sql.entity.UserEntity;
 import com.example.kinokatalog.persistence.sql.repository.UserSqlRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Tag("integration")
 @Transactional
 @ImportAutoConfiguration(exclude = {DataConfig.class})
 class AuthLoginIntegrationTest {

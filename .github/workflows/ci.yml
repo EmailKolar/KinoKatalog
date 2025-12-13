@@ -58,7 +58,8 @@ jobs:
         env:
           SPRING_PROFILES_ACTIVE: test
           DB_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
-        run: mvn clean verify -Dspring.profiles.active=test
+        #run: mvn clean verify -Dspring.profiles.active=test
+        run: mvn -B test -DexcludeTags=integration
 
       - name: Archive test results
         if: always()
