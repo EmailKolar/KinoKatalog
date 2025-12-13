@@ -1,5 +1,7 @@
 package com.example.kinokatalog.controller;
 
+import com.example.kinokatalog.KinoKatalogApplication;
+import com.example.kinokatalog.TestDisableDataConfig;
 import com.example.kinokatalog.dto.MovieDTO;
 import com.example.kinokatalog.persistence.sql.entity.MovieEntity;
 import com.example.kinokatalog.persistence.sql.repository.MovieSqlRepository;
@@ -22,9 +24,8 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+@SpringBootTest(classes = {KinoKatalogApplication.class, TestDisableDataConfig.class})
 @AutoConfigureMockMvc
-@Transactional
 @ActiveProfiles("test")
 class MovieIntegrationTest {
 
