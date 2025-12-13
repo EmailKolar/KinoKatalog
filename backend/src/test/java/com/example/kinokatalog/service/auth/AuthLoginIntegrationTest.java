@@ -25,8 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("login-test")
-@TestPropertySource("classpath:application-login-test.properties")
+@ActiveProfiles("test")
 @Transactional
 @ImportAutoConfiguration(exclude = {DataConfig.class})
 class AuthLoginIntegrationTest {

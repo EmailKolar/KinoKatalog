@@ -56,7 +56,7 @@ jobs:
       - name: Run Maven tests with coverage
         working-directory: ./backend
         env:
-          SPRING_PROFILES_ACTIVE: sql
+          #SPRING_PROFILES_ACTIVE: sql
           DB_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
         run: mvn clean verify
 

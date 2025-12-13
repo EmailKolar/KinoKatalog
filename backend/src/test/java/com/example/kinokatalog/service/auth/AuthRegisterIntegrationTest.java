@@ -22,8 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-@ActiveProfiles("register-test")
-@TestPropertySource("classpath:application-register-test.properties")
+@ActiveProfiles("test")
 @Transactional
 class AuthRegisterIntegrationTest {
 
