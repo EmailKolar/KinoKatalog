@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @ActiveProfiles("test")
 @Tag("integration")
-class ReviewControllerIntegrationTest {
+class ReviewControllerIntegrationTestIT {
 
     @Autowired MockMvc mockMvc;
     @Autowired UserSqlRepository userRepo;
