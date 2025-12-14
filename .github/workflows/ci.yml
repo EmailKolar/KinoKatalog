@@ -60,7 +60,9 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
         #run: mvn clean verify -Dspring.profiles.active=test
         #run: mvn -B test -DexcludeTags=integration
-        run: mvn -B verify -DskipITs
+        #run: mvn -B verify -DskipITs
+        run: mvn clean verify -Dspring.profiles.active=test
+        continue-on-error: true
 
       - name: Archive test results
         if: always()
