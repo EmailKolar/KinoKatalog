@@ -50,7 +50,7 @@ public class SecurityConfig {
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                         .ignoringRequestMatchers("/api/auth/login", "/api/users/register")
                 )
-                .addFilterAfter(csrfCookieFilter(), CsrfFilter.class)
+                //.addFilterAfter(csrfCookieFilter(), CsrfFilter.class)
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(
                         org.springframework.security.config.http.SessionCreationPolicy.STATELESS

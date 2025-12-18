@@ -27,8 +27,8 @@ public class CsrfCookieFilter extends OncePerRequestFilter {
         if (csrf != null) {
             // Create a readable CSRF cookie for the frontend
             ResponseCookie cookie = ResponseCookie.from("XSRF-TOKEN", csrf.getToken())
-                    .httpOnly(false)  // must be readable by React (document.cookie)
-                    .secure(false)    // set to true in production (HTTPS)
+                    .httpOnly(true)  // must be readable by React (document.cookie)
+                    .secure(true)    // set to true in production (HTTPS)
                     .path("/")
                     .sameSite("Lax") // Required when front + back run on different origins
                     .build();
