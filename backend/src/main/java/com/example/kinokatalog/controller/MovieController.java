@@ -21,12 +21,29 @@ public class MovieController {
 
 
     private final MovieService movieService;
-
+/*
     @GetMapping
     public ResponseEntity<List<MovieDTO>> getAllMovies() {
         List<MovieDTO> movies = movieService.getAllMovies();
         return ResponseEntity.ok(movies);
+    }*/
+
+    @GetMapping
+    public ResponseEntity<List<MovieDTO>> getMovies(
+            @RequestParam(value="q", required=false) String query) {
+        System.out.println("Search query received: " + query);
+
+        List<MovieDTO> movies = movieService.getAllMovies();
+
+        if (query != null && !query.isBlank()) {
+            movies = movies.stream()
+                    .filter(m -> m.getTitle().toLowerCase().contains(query.toLowerCase()))
+                    .toList();
+        }
+
+        return ResponseEntity.ok(movies);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<MovieDTO> getMovieById(@PathVariable Integer id) {
         MovieDTO movie = null;

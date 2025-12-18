@@ -11,21 +11,26 @@ import {
 } from "@chakra-ui/react";
 import logo from "../../assets/logo.webp";
 import ColorModeSwitch from "./ColorModeSwitch";
-import { SearchInput } from "./SearchInput";
+import SearchInput from "./SearchInput";
 import LoginModal from "../LoginModal";
 import RegisterModal from "../RegisterModal";
 import { useAuth } from "../../services/auth";
 import { Link } from "react-router-dom";
+import useMovieQueryStore from "../../state";
 
 const NavBar = () => {
   const loginModal = useDisclosure();
   const registerModal = useDisclosure();
   const auth = useAuth();
 
+  const handleSearch = (search: string) => {
+    useMovieQueryStore.getState().setSearchText(search);    
+  }
+
   return (
     <HStack justifyContent="space-between">
       <Image src={logo} boxSize="60px" />
-      <SearchInput />
+      <SearchInput onSearch={handleSearch}/>
       <HStack>
         <ColorModeSwitch />
 
