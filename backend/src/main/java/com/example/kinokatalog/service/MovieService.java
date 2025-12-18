@@ -9,4 +9,5 @@ public interface MovieService {
     MovieDTO getMovieById(Integer id);
     MovieDTO createMovie(MovieDTO movieDTO);
     void deleteMovieById(Integer id);
+    List<MovieDTO> searchMovies(String query);
 }

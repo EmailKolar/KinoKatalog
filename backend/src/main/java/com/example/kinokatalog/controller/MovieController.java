@@ -30,15 +30,16 @@ public class MovieController {
 
     @GetMapping
     public ResponseEntity<List<MovieDTO>> getMovies(
-            @RequestParam(value="q", required=false) String query) {
+            @RequestParam(value = "q", required = false) String query) {
+
         System.out.println("Search query received: " + query);
 
-        List<MovieDTO> movies = movieService.getAllMovies();
+        List<MovieDTO> movies;
 
         if (query != null && !query.isBlank()) {
-            movies = movies.stream()
-                    .filter(m -> m.getTitle().toLowerCase().contains(query.toLowerCase()))
-                    .toList();
+            movies = movieService.searchMovies(query); // new method
+        } else {
+            movies = movieService.getAllMovies();
         }
 
         return ResponseEntity.ok(movies);

@@ -48,5 +48,12 @@ public class MovieServiceSqlImpl implements MovieService {
         }
         movieRepository.deleteById(id);
     }
+    @Override
+    public List<MovieDTO> searchMovies(String query) {
+        return movieRepository.findByTitleContainingIgnoreCase(query)
+                .stream()
+                .map(MovieMapper::toDTO)
+                .toList();
+    }
 
 }
