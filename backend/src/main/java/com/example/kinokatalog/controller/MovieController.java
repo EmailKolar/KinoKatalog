@@ -31,17 +31,13 @@ public class MovieController {
     @GetMapping
     public ResponseEntity<List<MovieDTO>> getMovies(
             @RequestParam(value = "q", required = false) String query) {
-
         System.out.println("Search query received: " + query);
-
         List<MovieDTO> movies;
-
         if (query != null && !query.isBlank()) {
-            movies = movieService.searchMovies(query); // new method
+            movies = movieService.searchMovies(query);
         } else {
             movies = movieService.getAllMovies();
         }
-
         return ResponseEntity.ok(movies);
     }
 

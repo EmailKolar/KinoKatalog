@@ -21,7 +21,7 @@ const SearchInput = ({ onSearch }: Props) => {
         <Input
           ref={ref}
           borderRadius={20}
-          placeholder="Search posters..."
+          placeholder="Search movies..."
           variant="filled"
           onChange={() => onSearch(ref.current?.value || "")}
           width="100%"

@@ -20,7 +20,6 @@ function getCsrfToken(): string | null {
   }
   return null;
 }
-
 // Add CSRF token to all state-changing requests
 axiosInstance.interceptors.request.use((config) => {
   const csrfToken = getCsrfToken();
