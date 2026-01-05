@@ -161,5 +161,14 @@ CREATE TABLE movie_tags (
   FOREIGN KEY (tag_id) REFERENCES tags(id)
 );
 
-
+CREATE TABLE audit_log (
+    audit_id INT AUTO_INCREMENT PRIMARY KEY,
+    table_name VARCHAR(64) NOT NULL,
+    row_id INT NOT NULL,
+    operation_type ENUM('INSERT','UPDATE','DELETE') NOT NULL,
+    db_user VARCHAR(128) NOT NULL,
+    operation_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    old_values JSON,
+    new_values JSON
+);
 
