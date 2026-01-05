@@ -27,6 +27,14 @@ services:
     image: mongo:8.0
     container_name: KinoKatalog-mongo
     restart: always
+    command:
+      [
+        "mongod",
+        "--replSet", "rs0",
+        "--auth",
+        "--keyFile", "/etc/mongo-keyfile/mongo-keyfile",
+        "--bind_ip_all"
+      ]
     ports:
       - "27017:27017"
     environment:
@@ -35,6 +43,7 @@ services:
       MONGO_INITDB_DATABASE: KinoKatalogDocument
     volumes:
       - mongo_data:/data/db
+      - ./mongo-keyfile:/etc/mongo-keyfile:ro
     healthcheck:
       test: |
         mongosh --eval "

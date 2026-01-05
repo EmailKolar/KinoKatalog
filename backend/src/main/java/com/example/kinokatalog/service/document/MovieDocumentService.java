@@ -5,11 +5,13 @@ import com.example.kinokatalog.persistence.document.repository.MovieDocumentRepo
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(transactionManager = "documentTransactionManager")
 public class MovieDocumentService {
 
     private final MovieDocumentRepository repository;

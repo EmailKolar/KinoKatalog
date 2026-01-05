@@ -5,6 +5,9 @@ target/
 *.war
 *.ear
 
+# MongoDB replica set keyfile
+mongo-keyfile/
+
 # === Maven Wrapper ===
 .mvn/
 !/.mvn/wrapper/maven-wrapper.jar
