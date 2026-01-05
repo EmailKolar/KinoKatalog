@@ -8,6 +8,8 @@ import com.example.kinokatalog.persistence.sql.repository.MovieSqlRepository;
 import com.example.kinokatalog.service.MovieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +22,7 @@ public class MovieServiceSqlImpl implements MovieService {
     private final MovieSqlRepository movieRepository;
 
     @Override
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public List<MovieDTO> getAllMovies() {
         return movieRepository.findAll()
                 .stream()
@@ -28,6 +31,7 @@ public class MovieServiceSqlImpl implements MovieService {
     }
 
     @Override
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public MovieDTO getMovieById(Integer id) {
         return movieRepository.findById(id)
                 .map(MovieMapper::toDTO)
@@ -35,6 +39,7 @@ public class MovieServiceSqlImpl implements MovieService {
     }
 
     @Override
+    @Transactional(transactionManager = "transactionManager", isolation = Isolation.READ_COMMITTED)
     public MovieDTO createMovie(MovieDTO movieDTO) {
         MovieEntity entity = MovieMapper.toEntity(movieDTO);
         MovieEntity saved = movieRepository.save(entity);
@@ -42,6 +47,7 @@ public class MovieServiceSqlImpl implements MovieService {
     }
 
     @Override
+    @Transactional(transactionManager = "transactionManager", isolation = Isolation.READ_COMMITTED)
     public void deleteMovieById(Integer id) {
         if (!movieRepository.existsById(id)) {
             throw new RuntimeException("Movie not found");
@@ -49,6 +55,7 @@ public class MovieServiceSqlImpl implements MovieService {
         movieRepository.deleteById(id);
     }
     @Override
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public List<MovieDTO> searchMovies(String query) {
         return movieRepository.findByTitleContainingIgnoreCase(query)
                 .stream()

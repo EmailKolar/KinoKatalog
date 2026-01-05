@@ -101,6 +101,8 @@ public class MigrationSqlToNeoService {
     // ---------------------------------------------------------------------
     public void migrate() {
 
+        prepareGraphSchema();
+
         // 1. Base movie people + metadata
         migrateMovies();
         migrateGenres();
@@ -134,6 +136,50 @@ public class MigrationSqlToNeoService {
         System.out.println("Migration completed");
     }
 
+
+    @Transactional("neo4jTransactionManager")
+    public void prepareGraphSchema() {
+
+        neo4jClient.query("""
+        CREATE CONSTRAINT movie_tmdb IF NOT EXISTS
+        FOR (m:Movie) REQUIRE m.tmdbId IS UNIQUE
+    """).run();
+
+        neo4jClient.query("""
+        CREATE CONSTRAINT user_sql IF NOT EXISTS
+        FOR (u:User) REQUIRE u.sqlId IS UNIQUE
+    """).run();
+
+        neo4jClient.query("""
+        CREATE CONSTRAINT review_sql IF NOT EXISTS
+        FOR (r:Review) REQUIRE r.sqlId IS UNIQUE
+    """).run();
+
+        neo4jClient.query("""
+        CREATE CONSTRAINT person_tmdb IF NOT EXISTS
+        FOR (p:Person) REQUIRE p.tmdbId IS UNIQUE
+    """).run();
+
+        neo4jClient.query("""
+        CREATE CONSTRAINT genre_tmdb IF NOT EXISTS
+        FOR (g:Genre) REQUIRE g.tmdbId IS UNIQUE
+    """).run();
+
+        neo4jClient.query("""
+        CREATE CONSTRAINT tag_tmdb IF NOT EXISTS
+        FOR (t:Tag) REQUIRE t.tmdbId IS UNIQUE
+    """).run();
+
+        neo4jClient.query("""
+        CREATE CONSTRAINT company_sql IF NOT EXISTS
+        FOR (c:Company) REQUIRE c.sqlId IS UNIQUE
+    """).run();
+
+        neo4jClient.query("""
+        CREATE CONSTRAINT collection_sql IF NOT EXISTS
+        FOR (c:Collection) REQUIRE c.sqlId IS UNIQUE
+    """).run();
+    }
 
 
 

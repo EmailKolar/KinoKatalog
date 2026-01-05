@@ -45,12 +45,13 @@ public class SecurityConfig {
 
         http
                 // Enable CSRF protection with cookies
-                .csrf(csrf -> csrf
+               /* .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                         .ignoringRequestMatchers("/api/auth/login", "/api/users/register")
-                )
-                //.addFilterAfter(csrfCookieFilter(), CsrfFilter.class)
+                )*/
+                .csrf(csrf -> csrf.disable())
+                .addFilterAfter(csrfCookieFilter(), CsrfFilter.class)
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(
                         org.springframework.security.config.http.SessionCreationPolicy.STATELESS

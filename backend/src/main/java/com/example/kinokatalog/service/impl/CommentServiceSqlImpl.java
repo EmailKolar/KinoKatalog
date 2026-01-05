@@ -12,6 +12,8 @@ import com.example.kinokatalog.persistence.sql.repository.UserSqlRepository;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +23,7 @@ public class CommentServiceSqlImpl {
     private final ReviewSqlRepository reviewRepo;
     private final CommentSqlRepository commentRepo;
 
+    @Transactional(transactionManager = "transactionManager", isolation = Isolation.SERIALIZABLE)
     public CommentEntity addCommentToReview(Integer reviewId, String text, String username){
         // 1. Validate user exists
         UserEntity user = userRepo.findByUsername(username)

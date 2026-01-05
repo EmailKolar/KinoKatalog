@@ -15,6 +15,8 @@ import com.example.kinokatalog.service.ReviewService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,11 +28,13 @@ public class ReviewServiceSqlImpl {
     private final MovieSqlRepository movieSqlRepository;
     private final UserSqlRepository userSqlRepository;
 
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public List<ReviewEntity> getReviewsByMovie(Integer movieId) {
         return reviewSqlRepository.findByMovieEntity_Id(movieId);
     }
 
 
+    @Transactional(transactionManager = "transactionManager", isolation = Isolation.SERIALIZABLE)
     public ReviewEntity addReviewToMovie(
             Integer movieId,
             Integer rating,

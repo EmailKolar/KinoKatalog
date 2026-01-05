@@ -14,6 +14,7 @@ import com.example.kinokatalog.persistence.sql.repository.UserSqlRepository;
 import com.example.kinokatalog.service.CollectionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.kinokatalog.persistence.sql.entity.CollectionEntity;
 import com.example.kinokatalog.persistence.sql.entity.CollectionMovieEntity;
@@ -22,7 +23,6 @@ import com.example.kinokatalog.persistence.sql.repository.CollectionSqlRepositor
 import java.util.*;
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class CollectionServiceSqlImpl{
 
     private final CollectionSqlRepository collectionRepo;
@@ -33,6 +33,7 @@ public class CollectionServiceSqlImpl{
 
 
 
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public CollectionDTO getCollectionById(Integer id) {
 
         CollectionEntity entity = collectionRepo.findById(id)
@@ -51,7 +52,7 @@ public class CollectionServiceSqlImpl{
         return dto;
     }
 
-
+    @Transactional(transactionManager = "transactionManager", isolation = Isolation.READ_COMMITTED)
     public CollectionDTO createCollection(Integer userId, String name, String description, String authenticatedUsername) {
 
         // 1. Validate userId
@@ -112,6 +113,7 @@ public class CollectionServiceSqlImpl{
     }
 
 
+    @Transactional(transactionManager = "transactionManager", isolation = Isolation.READ_COMMITTED)
     public CollectionDTO updateCollection(Integer id, CollectionDTO dto) {
         CollectionEntity entity = collectionRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Collection not found"));
@@ -122,13 +124,13 @@ public class CollectionServiceSqlImpl{
         return mapper.toDTO(collectionRepo.save(entity));
     }
 
-
+    @Transactional(transactionManager = "transactionManager", isolation = Isolation.READ_COMMITTED)
     public void deleteCollection(Integer id) {
         collectionMovieRepo.deleteByCollectionId(id);
         collectionRepo.deleteById(id);
     }
 
-
+    @Transactional(transactionManager = "transactionManager", isolation = Isolation.READ_COMMITTED)
     public void addMovieToCollection(Integer collectionId, Integer movieId) {
 
         if (collectionMovieRepo.existsByCollectionIdAndMovieId(collectionId, movieId)) {
@@ -148,13 +150,13 @@ public class CollectionServiceSqlImpl{
         collectionMovieRepo.save(join);
     }
 
-
+    @Transactional(transactionManager = "transactionManager", isolation = Isolation.READ_COMMITTED)
     public void removeMovieFromCollection(Integer collectionId, Integer movieId) {
         collectionMovieRepo.deleteByCollectionIdAndMovieId(collectionId, movieId);
     }
 
 
-
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public List<CollectionDTO> getCollectionsByUser(Integer userId) {
         return collectionRepo.findByUserId(userId).stream()
                 .map(mapper::toDTO)

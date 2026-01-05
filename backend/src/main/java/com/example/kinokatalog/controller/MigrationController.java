@@ -36,10 +36,10 @@ public class MigrationController {
 
     @PostMapping("/run-neo-migration")
     public ResponseEntity<String> runNeoMigration(@RequestHeader("X-MIGRATION-KEY") String key) {
-
+        /*
         if (!"SUPERSECRET".equals(key)) {
             return ResponseEntity.status(403).body("Forbidden");
-        }
+        }*/
 
         migrationSqlToNeoService.migrate();
         return ResponseEntity.ok("Neo4j Migration done");

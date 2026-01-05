@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.example.kinokatalog.service.PasswordValidator.isValidPassword;
 
@@ -26,15 +28,17 @@ public class UserServiceSqlImpl {
 
 
 
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public UserDTO getUserById(Integer id) {
         return userSqlRepository.findById(id).map(UserMapper::toUserDTO).orElseThrow(() -> new RuntimeException("User not found"));
 
     }
-
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public UserDTO getUserByUsername(String username) {
         return userSqlRepository.findByUsername(username).map(UserMapper::toUserDTO).orElseThrow(() -> new RuntimeException("User not found"));
     }
 
+    @Transactional(transactionManager = "transactionManager", isolation = Isolation.SERIALIZABLE)
     public UserDTO register(RegisterRequest req){
         req.setUsername(req.getUsername().trim());
         req.setEmail(req.getEmail().trim());
