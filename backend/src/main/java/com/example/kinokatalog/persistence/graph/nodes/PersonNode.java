@@ -2,6 +2,7 @@ package com.example.kinokatalog.persistence.graph.nodes;
 
 import com.example.kinokatalog.persistence.graph.relationships.ActedInRelation;
 import com.example.kinokatalog.persistence.graph.relationships.CrewMemberRelation;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,9 +35,11 @@ public class PersonNode {
     private String biography;
     private LocalDate birthDate;
 
+    @JsonIgnore
     @Relationship(type = "ACTED_IN", direction = OUTGOING)
     private List<ActedInRelation> actedIn = new ArrayList<>();
 
+    @JsonIgnore
     @Relationship(type = "CREW_MEMBER", direction = OUTGOING)
     private List<CrewMemberRelation> crewJobs = new ArrayList<>();
 

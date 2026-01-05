@@ -1,5 +1,6 @@
 package com.example.kinokatalog.persistence.graph.nodes;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,6 +28,7 @@ public class GenreNode {
 
     private Integer tmdbId;
 
+    @JsonIgnore
     @Relationship(type = "HAS_GENRE", direction = Relationship.Direction.INCOMING)
     private List<MovieNode> movies = new ArrayList<>();
 

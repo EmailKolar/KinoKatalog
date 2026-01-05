@@ -4,11 +4,13 @@ import com.example.kinokatalog.persistence.graph.nodes.MovieNode;
 import com.example.kinokatalog.persistence.graph.repository.MovieNodeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(transactionManager = "neo4jTransactionManager")
 public class MovieNodeService {
 
 

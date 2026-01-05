@@ -4,6 +4,7 @@ package com.example.kinokatalog.persistence.graph.nodes;
 import com.example.kinokatalog.persistence.graph.relationships.ActedInRelation;
 import com.example.kinokatalog.persistence.graph.relationships.CrewMemberRelation;
 import com.example.kinokatalog.persistence.graph.relationships.WatchlistRelation;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -63,9 +64,11 @@ public class MovieNode {
     private List<CompanyNode> companies = new ArrayList<>();
 
 
+    @JsonIgnore
     @Relationship(type = "CONTAINS_MOVIE", direction = INCOMING)
     private CollectionNode collection;
 
+    @JsonIgnore
     @Relationship(type = "FOR", direction = INCOMING)
     private ReviewNode review;
 
@@ -75,6 +78,7 @@ public class MovieNode {
     @Relationship(type = "CREW_MEMBER", direction = INCOMING)
     private List<PersonNode> crew; // NO RELATION CLASS HERE
 
+    @JsonIgnore
     @Relationship(type = "HAS_IN_WATCHLIST", direction = INCOMING)
     private List<UserNode> watchlistedBy; // NO RELATION CLASS HERE
 
