@@ -184,11 +184,17 @@ GRANT SELECT ON KinoKatalog.genres TO 'app_user'@'%';
 GRANT SELECT ON KinoKatalog.people TO 'app_user'@'%';
 GRANT SELECT ON KinoKatalog.companies TO 'app_user'@'%';
 GRANT SELECT ON KinoKatalog.tags TO 'app_user'@'%';
+GRANT SELECT ON KinoKatalog.movie_genres TO 'app_user'@'%';
+GRANT SELECT ON KinoKatalog.movie_companies TO 'app_user'@'%';
+GRANT SELECT ON KinoKatalog.movie_cast TO 'app_user'@'%';
+GRANT SELECT ON KinoKatalog.movie_crew TO 'app_user'@'%';
+GRANT SELECT ON KinoKatalog.movie_tags TO 'app_user'@'%';
 GRANT INSERT, UPDATE, DELETE ON KinoKatalog.reviews TO 'app_user'@'%';
 GRANT INSERT, UPDATE, DELETE ON KinoKatalog.comments TO 'app_user'@'%';
 GRANT INSERT, UPDATE, DELETE ON KinoKatalog.watchlists TO 'app_user'@'%';
 GRANT INSERT, UPDATE, DELETE ON KinoKatalog.collections TO 'app_user'@'%';
 GRANT INSERT, UPDATE, DELETE ON KinoKatalog.users TO 'app_user'@'%';
+GRANT SELECT, INSERT, DELETE ON KinoKatalog.collection_movies TO 'app_user'@'%';
 
 
 CREATE USER 'admin_user'@'%' IDENTIFIED BY 'STRONG_PASSWORD';
@@ -197,8 +203,13 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON KinoKatalog.genres TO 'admin_user'@'%';
 GRANT SELECT, INSERT, UPDATE, DELETE ON KinoKatalog.people TO 'admin_user'@'%';
 GRANT SELECT, INSERT, UPDATE, DELETE ON KinoKatalog.companies TO 'admin_user'@'%';
 GRANT SELECT, INSERT, UPDATE, DELETE ON KinoKatalog.tags TO 'admin_user'@'%';
-GRANT DELETE ON KinoKatalog.reviews TO 'admin_user'@'%';
-GRANT DELETE ON KinoKatalog.comments TO 'admin_user'@'%';
+GRANT SELECT, DELETE ON KinoKatalog.reviews TO 'admin_user'@'%';
+GRANT SELECT, DELETE ON KinoKatalog.comments TO 'admin_user'@'%';
+GRANT SELECT, INSERT, DELETE ON KinoKatalog.movie_genres TO 'admin_user'@'%';
+GRANT SELECT, INSERT, DELETE ON KinoKatalog.movie_companies TO 'admin_user'@'%';
+GRANT SELECT, INSERT, DELETE ON KinoKatalog.movie_cast TO 'admin_user'@'%';
+GRANT SELECT, INSERT, DELETE ON KinoKatalog.movie_crew TO 'admin_user'@'%';
+GRANT SELECT, INSERT, DELETE ON KinoKatalog.movie_tags TO 'admin_user'@'%';
 
 CREATE USER 'auditor_user'@'%' IDENTIFIED BY 'STRONG_PASSWORD';
 GRANT SELECT ON KinoKatalog.* TO 'auditor_user'@'%';
