@@ -2032,4 +2032,13 @@ INSERT INTO movie_tags (movie_id, tag_id) VALUES (755898, 4);
 INSERT INTO movie_tags (movie_id, tag_id) VALUES (1009640, 1);
 INSERT INTO movie_tags (movie_id, tag_id) VALUES (1038392, 2);
 INSERT INTO movie_tags (movie_id, tag_id) VALUES (1450529, 3);
-
+INSERT INTO comments (review_id, user_id, comment_text) VALUES (1, 2, 'I totally agree, the visuals are incredible.');
+INSERT INTO comments (review_id, user_id, comment_text) VALUES (1, 3, 'One of the best movies of its decade.');
+INSERT INTO comments (review_id, user_id, comment_text) VALUES (2, 1, 'I felt the same on my first watch!');
+INSERT INTO comments (review_id, user_id, comment_text) VALUES (2, 1, 'I felt the same on my second watch!');
+INSERT INTO comments (review_id, user_id, comment_text) VALUES (3, 2, 'This movie changed sci-fi forever.');
+INSERT INTO collections (user_id, name, description) VALUES (1, 'Mind-Bending Sci-Fi', 'Movies that challenge reality and perception');
+INSERT INTO collections (user_id, name, description) VALUES (2, 'All-Time Favorites', 'My personal favorite movies');
+INSERT INTO collection_movies (collection_id, movie_id) VALUES (1, 617126);
+INSERT INTO collection_movies (collection_id, movie_id) VALUES (1, 155);
+INSERT INTO collection_movies (collection_id, movie_id) VALUES (2, 617126);
