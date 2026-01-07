@@ -24,23 +24,13 @@ public class MigrationController {
     }
 
     @PostMapping("/run-mongo-migration")
-    public ResponseEntity<String> runMigration(@RequestHeader("X-MIGRATION-KEY") String key) {
-
-        if (!"SUPERSECRET".equals(key)) {
-            return ResponseEntity.status(403).body("Forbidden");
-        }
-
+    public ResponseEntity<String> runMigration() {
         migrationService.migrate();
         return ResponseEntity.ok("Mongo Migration done");
     }
 
     @PostMapping("/run-neo-migration")
-    public ResponseEntity<String> runNeoMigration(@RequestHeader("X-MIGRATION-KEY") String key) {
-        /*
-        if (!"SUPERSECRET".equals(key)) {
-            return ResponseEntity.status(403).body("Forbidden");
-        }*/
-
+    public ResponseEntity<String> runNeoMigration() {
         migrationSqlToNeoService.migrate();
         return ResponseEntity.ok("Neo4j Migration done");
     }
